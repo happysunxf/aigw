@@ -81,3 +81,33 @@ AI Gateway 调研的更新日志。
   - 数据：2026-07-28 RC 7 大主变更 / Auth IG 宪章落地 / ToolHive v0.29.1 / Registry 6 个安全 PR
   - 重点：协议去掉 session/initialize、server/discover、MRTR 模式、Tasks 改扩展、Auth IG 2 个 Active WG
   - 建议：企业用 `_meta` 透传 OTel；做"server+client 双面 gateway"；治理静态 API key
+
+## 2026-06-05 04:25 CST · Guardrails & 安全（cron 4/11 轮）
+
+- [2026-06-05-0425-aigw-guardrails.md](reports/2026-06-05-0425-aigw-guardrails.md)
+  - 主题：**Guardrails & 安全**（hour%7=4）— 提示词注入 / PII / 内容审计 / 零留存 四象限
+  - 抓取时间：2026-06-05 04:25 CST
+  - 角度：上轮（03:48）只点出"路由层 timing-attack 修复",本轮正式展开
+  - 重点：**NVIDIA NeMo Guardrails v0.22.0**（5/22）— anonymous usage reporting 三种 opt-out / LangChain decoupling / IORails milestone 2
+  - 重点：NeMo v0.21.0（3/12）`check_async()` 让"只跑 input/output rail"成为公开 API
+  - 重点：NeMo v0.20.0（1/22）**GLiNER 开源 PII 替代 PrivateAI** + Nemotron-Content-Safety-Reasoning 4B `/think` 模式
+  - 重点：**guardrails-ai v0.10.2**（6/4）— SECURITY_ADVISORY.md 持续维护 + Aikido 自动修 Actions template injection + 切 PyPI trusted publishing
+  - 重点：**Microsoft Presidio 2.2.362**（3/18）— HuggingFaceNerRecognizer + dependency pin 应对 supply chain + 修 CVE-2024-47874 / CVE-2025-54121（图像 PII 扫描）
+  - 重点：Lakera PINT-benchmark（188★, 5/21）合并 internal + public prompt injections → 厂商统一基准
+  - 重点：Microsoft Learn Prompt Shields 文档（2026-02-26）把 indirect prompt injection 独立分类
+  - 观点：四层独立平面 = 注入检测 / PII 脱敏 / 内容审计 / 零留存,每层都能热插拔
+  - 状态：本地 → 推送成功（content_sha=e47a9b5832e02bbb33aa7196558c8a612f654b26, commit=7323751f52fe7287d6898fb5dbade51ede95a0f0）
+
+## 2026-06-05 03:48 CST · 语义路由/成本优化 角度 B（cron 3/10 轮，补推）
+
+- [2026-06-05-0348-aigw-routing-cost-security.md](reports/2026-06-05-0348-aigw-routing-cost-security.md)
+  - 主题：**语义路由 + 路由层安全**（hour%7=3，角度 B）— 与 03:06 主题同,补推
+  - 抓取时间：2026-06-05 03:48 CST
+  - 重点：LiteLLM v1.86.3 / v1.86.4 / v1.88.0-rc.2（6/3-4）+ PR #29612 session-token budget-ceiling exemption
+  - 重点：**SmarterRouter 2.2.4**（4/6）pickle.loads 缓存 RCE + MD5→SHA256 cache key — 语义缓存已成新攻击面
+  - 重点：SmarterRouter 2.2.5（4/18）Ollama model metadata / MoE-aware VRAM / Gemma 4
+  - 重点：SMG (lightseekorg) v1.4.0/v1.4.1（4/2,4/9）K8s Helm + mesh HA 修复
+  - 重点：a3m-router 47+ providers / 70.32% 路由准确率 / 62% 成本节省 / 30%+ cache hit
+  - 重点：OpenRouter 400+ 模型（上次 346）/ `sort` 对象 / `data_collection` / `Exacto` tier
+  - 重点：SmarterRouter 2.2.3 admin API key `!=` timing attack（延展到下次 Guardrails 专题）
+  - 状态：本地 → 推送成功（content_sha=de561e29616b71de0eccd26853b01290ccdad1cc, commit=d7da48afe29f3a1ed11faf8c1541aedef8d3d8ac，补推于 04:25 轮值）
