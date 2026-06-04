@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-06-05 05:45 CST · 可观测 & 监控（cron 5/12 轮，续篇）
+
+- [2026-06-05-0545-aigw-observability-2.md](reports/2026-06-05-0545-aigw-observability-2.md)
+  - 主题：**可观测 & 监控**（hour%7=5，续篇）— Token 治理 / eBPF 零插桩 / Server 策略兜底 / OTel GenAI 跨协议对齐
+  - 抓取时间：2026-06-05 05:45 CST
+  - 角度：上轮（05:06）覆盖 Helicone/Mintlify、Langfuse v3.176-3.178、OpenLLMetry 0.61、OpenLIT 1.21、OTel semconv 拆分、Portkey 安全；本轮聚焦 6-02~6-04 三天内的新治理/新工具信号
+  - 重点：**Arize Phoenix v17.0.0**（6-02）— `system_settings` 表 + `agentTraceRecording` ceiling policy + `acknowledgedTraceConsent` snapshot 机制（PR #13254, BREAKING）—— OSS LLM 可观测里**第一条** server-enforced 录制策略
+  - 重点：Phoenix v17.1.0（6-02）PXI 加 `load_dataset` + `LLM-evaluator authoring`（评估器本身也用 PXI 写）；v17.2.0（6-03）PXI `route info tool` + 多 deployment chat history 隔离
+  - 重点：Phoenix v16.2（5-26）`fix: confine token counts to LLM spans at ingestion`（#13433）—— 修复 chain/tool/retrieval 父 span 累加 token 致 LLM span 重复计费 / 成本归因高估
+  - 重点：**零插桩 eBPF 抓 LLM 从 demo 跨入 production**：`eunomia-bpf/agentsight` (381★) 6-03 ~ 6-04 发 v0.2.7/0.2.8/0.2.9 三 tag（SSL filter 重构 + StdioRunner/SystemRunner + tool&file breakdown + SSE 重构）
+  - 重点：`AkshantVats/ebpf-llm-tracer`（Go+BPF）6-01 ~ 6-04 从 BPF connect probe 推到 user-space HTTP parser + Kafka InferenceEvent schema（Day 15→17）
+  - 重点：**OTel semantic-conventions-genai 独立仓**（5-05 从主仓拆出）6-04 同日合并 4 个 spec-level PR：#220 (MCP context propagation 显式指向 **MCP SEP-414**)、#216 (GenAI span duration 含 retries)、#217 (top_k 拆 retrieval)、#219 (conversation id fallback)、#214 (provider.name 降 Recommended)
+  - 重点：Langfuse 6-04 增量 PR #14032（blob-storage 导出源从 V4 beta toggle 解耦，**V4 即将 GA 信号**）、#14009（datasets remote experiment config 读权限 gate）、#14033（seeder 默认 AI 特性 on）
+  - 战略观察：从"Helicone 维护 + Langfuse 接管"演进到 **"把可观测做成云上控制面"** —— Phoenix admin trace ceiling、Langfuse in-app agent key + audit、Portkey admin token default，三家齐头并进收紧治理
+  - 选型增量建议：合规/多团队 → Phoenix v17+；零插桩 → eBPF 三件套；跨协议 trace → OTel GenAI semconv 1.41+ SDK
+  - 状态：本地 → 推送成功（content_sha=5fc0798a690a30287a5c8932328b4ca996052e21, commit=67e21cc4b6ae55317d54b8b042a622167d5a9985）
 ## 2026-06-05 05:06 CST · 可观测 & 监控（cron 5/12 轮）
 
 - [2026-06-05-0506-aigw-observability.md](reports/2026-06-05-0506-aigw-observability.md)
