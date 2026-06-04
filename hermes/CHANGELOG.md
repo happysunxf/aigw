@@ -162,3 +162,23 @@ AI Gateway 调研的更新日志。
   - 重点：SmarterRouter 2.2.3 admin API key `!=` timing attack（延展到下次 Guardrails 专题）
   - 状态：本地 → 推送成功（content_sha=de561e29616b71de0eccd26853b01290ccdad1cc, commit=d7da48afe29f3a1ed11faf8c1541aedef8d3d8ac，补推于 04:25 轮值）
 
+
+
+## 2026-06-05 07:16 CST · Portkey 发版追踪（hour%7=0 轮换位）
+
+- [2026-06-05-0716-aigw-portkey-release.md](reports/2026-06-05-0716-aigw-portkey-release.md)
+  - 主题：**单产品发版追踪 — Portkey**（hour%7=0，轮换表第 2 位）
+  - 抓取时间：2026-06-05 07:16 CST
+  - 角度：上轮 00:34 是 LiteLLM（轮换表第 1 位），本轮按顺序切到 Portkey
+  - 重点：**v1.15.2 仍是最新 release tag（2026-01-12）—— 5 个月没发新 tag**，main 分支却持续合入
+  - 重点：main 上 **5/19 一天 4 个安全 commit**：remove admin token default / add auth validation for public routes / redact provider options in logs / disable logs when admin token not set —— 典型 PANW 收编后安全审查 pattern
+  - 重点：v1.15.0（2025-12-23）**Sequential Guardrails**（#1475）—— 多个 guardrail 可配置顺序执行，错误定位更直接
+  - 重点：v1.15.0 **Hallucination Eval**（#1434, Patronus AI 贡献）—— guardrail-as-a-service 多了"内容正确性"维度
+  - 重点：v1.15.0 **Anthropic on Azure + OpenAI-compatible responses**（#1465/#1456）—— OpenAI SDK 零改动切到 Azure 上 Claude
+  - 重点：v1.15.2 **Azure Blob for Batches**（#1496）—— 企业 Azure-only 部署的卡点解锁
+  - 重点：v1.15.0 新增 4 个 provider：Oracle、IO Intelligence、OVHcloud AI Endpoints、AI Badgr
+  - 重点：博客 **MCP Governance**（2026-05-24）披露 4 个数据：53% 静态 API key / 8.5% OAuth / 79% env-var 存凭据 / postmark-mcp rugpull 案例
+  - 重点：博客 **Skills Registry**（2026-04-23）—— Portkey 第一次把产品边界从"网关"扩到"Agent 上下文注册表"（对标 LangChain Hub）
+  - 仓库健康：11,970★ / 1,105 fork / 187 open issues / pushed_at 2026-05-25 —— star 增速已明显放缓（>5 月仅 +2★）
+  - 观点：Portkey 已经从"LLM gateway"重新定位成"AI Gateway + Agent Gateway + MCP Governance + Skills Registry"四件套；纯 LLM 路由场景 LiteLLM/OpenRouter 仍然更轻
+  - 状态：本地 → 推送
