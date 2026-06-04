@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-06-05 05:06 CST · 可观测 & 监控（cron 5/12 轮）
+
+- [2026-06-05-0506-aigw-observability.md](reports/2026-06-05-0506-aigw-observability.md)
+  - 主题：**可观测 & 监控**（hour%7=5）— OTel / 成本归因 / token metrics
+  - 抓取时间：2026-06-05 05:06 CST
+  - 重大事件：**Helicone 被 Mintlify 收购**（2026-03-03 官宣，maintenance 模式，14.2T token / 16k 组织）— LLM 可观测赛道整合
+  - 重点：Langfuse v3.178.0（6/2）— **in-app agent MCP**（ephemeral project key + MCP-only scope + 流结束删 key，PR #13747）
+  - 重点：Langfuse v3.177.x（6/1）— `LANGFUSE_DISABLE_LEGACY_TRACING_IO_SEARCH` v3→v4 逃生通道 + AI telemetry toggle
+  - 重点：Langfuse v3.176.0（5/28）— MCP 全栈化（metrics / scores / media / comments / datasets / annotation queues / health）+ audit log entitlement 收紧（PR #13980）
+  - 重点：**OpenLLMetry 0.61.0**（5/31）— OpenAI Agents / Bedrock / Anthropic / Groq / Mistral / Ollama / Sagemaker / Together 全部 "失败 span 写 ERROR" + reasoning_tokens / cache_read.input_tokens / embeddings_count 归一化
+  - 重点：OpenLIT 1.21.0（5/27）— **offline evals 取代 LLM based evals** + guardrails 重构 + remote agent lifecycle + Trace UI 重写
+  - 重点：OpenLIT otel-gpu-collector 0.0.5/0.0.6（6/2-3）+ ts-1.13.0 Cursor SDK Instrumentation
+  - 重点：OTel semconv 5-05 PR #3696 *Move GenAI semantic conventions to its own dedicated repository* + 5-18 `apply_guardrail` + finding event 进 spec
+  - 重点：OTel semconv 4-27 #3383 *define reasoning tokens attribute* 落地 → 与 OpenLLMetry 0.61 配套
+  - 重点：Portkey Gateway 5-19 安全补漏 — `remove admin token default` + `add auth validation for public routes`（PR #1657）+ provider options 在日志里 redact
+  - 重点：Portkey 5-11/5-18 request metadata 透传到 **CrowdStrike AIDR**
+  - 状态：本地 → 推送成功（content_sha=e3dd50b33583dd5a18bc172b18ea4fbc0d81abeb, commit=e3dd50b33583dd5a18bc172b18ea4fbc0d81abeb）
+
 ## 2026-06-05 03:06 CST · 语义路由/成本优化（cron 3/10 轮）
 
 - [2026-06-05-0306-aigw-semantic-routing-cost.md](reports/2026-06-05-0306-aigw-semantic-routing-cost.md)
