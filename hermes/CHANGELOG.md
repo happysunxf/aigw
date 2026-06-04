@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-06-05 06:32 CST · 架构对比 / 性能基准（cron 6/13 轮）
+
+- [2026-06-05-0632-aigw-arch-benchmark.md](reports/2026-06-05-0632-aigw-arch-benchmark.md)
+  - 主题：**架构对比 / 性能基准**（hour%7=6）— 5 款主流 AI 网关横向 + CVE 联动 + 性能基线
+  - 抓取时间：2026-06-05 06:32 CST
+  - 范围：Envoy AI GW v0.6.0 / Higress v2.2.2 / kgateway v2.3.2+v2.2.5 / LiteLLM v1.87.1+v1.88.0-rc.2 / Portkey v1.15.2
+  - 重点：**CVE-2026-47774**（6/3 披露，CVSS 7.5 HIGH）—— HTTP/2 cookie 头大小绕过 + HPACK 放大，3 GiB 几分钟 OOM；kgateway 6/4 当日合入 Envoy 1.37.3/1.36.7 修复
+  - 重点：**CVE-2026-42945**（CVSS 9.2 CRITICAL）—— Nginx 18 年 `rewrite+set` 两阶段堆溢出；Higress PR #3823 用 **WASM 沙箱**绕开（首例工业界）
+  - 重点：Envoy AI GW v0.6.0（5/5）首标 production-ready API · CRD 升 v1beta1 · Native `InvokeModel` for Bedrock Claude · Unified `reasoning_effort` 跨 Anthropic/OpenAI/Gemini
+  - 重点：Higress v2.2.2（5/26）37 项变更 13 新特性 · `modelToHeader` 同步头 · Bedrock 直连 Mantle · KlingAI provider · `cooldownDuration` API key 自愈
+  - 重点：LiteLLM v1.88.0-rc.2 修 **GHSA-q775** session-token exemption 漏洞 · cosign 签名所有 Docker 镜像
+  - 重点：Portkey 5 月底 commit **admin token 公开路由 auth 校验 + 日志脱敏 + 移除 admin token 默认值** —— 持续安全加固
+  - 数据：Envoy 30-50 万 RPS/单核（社区 benchmark） · LiteLLM 200-800 RPS（单进程） · **~1000x 差距** —— LiteLLM 定位是"应用层 SDK 网关"
+  - 观点：选型把"上游核心 CVE 响应速度"当硬指标 —— 本次 CVE-2026-47774 kgateway 24h 修 vs Envoy AI GW 还在等 v0.6.1
+  - 状态：本地 → 推送成功（content_sha=450d0c7877f927e189702e447779a3a77cc936a7, commit=6b10673b430a8afba9ce3d3587898ba0ad670127）
+
 ## 2026-06-05 05:45 CST · 可观测 & 监控（cron 5/12 轮，续篇）
 
 - [2026-06-05-0545-aigw-observability-2.md](reports/2026-06-05-0545-aigw-observability-2.md)
@@ -145,3 +161,4 @@ AI Gateway 调研的更新日志。
   - 重点：OpenRouter 400+ 模型（上次 346）/ `sort` 对象 / `data_collection` / `Exacto` tier
   - 重点：SmarterRouter 2.2.3 admin API key `!=` timing attack（延展到下次 Guardrails 专题）
   - 状态：本地 → 推送成功（content_sha=de561e29616b71de0eccd26853b01290ccdad1cc, commit=d7da48afe29f3a1ed11faf8c1541aedef8d3d8ac，补推于 04:25 轮值）
+
