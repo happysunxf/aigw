@@ -14,3 +14,13 @@ AI Gateway 调研的更新日志。
 - 创建 `hermes/.gitkeep`、`hermes/reports/.gitkeep`
 - 创建 `hermes/README.md`（索引）、`hermes/CHANGELOG.md`（本文件）
 - 共 4 个 commit
+
+## 2026-06-05
+
+### 报告
+- [2026-06-05-0034-aigw-litellm-release.md](reports/2026-06-05-0034-aigw-litellm-release.md)
+  - 主题：单产品发版追踪（LiteLLM，cron 第 0/7 轮）
+  - 抓取时间：2026-06-05 00:34 CST
+  - 数据：LiteLLM 5 天内 6 个 tag（v1.88.0-rc.1 / v1.87.0 / v1.86.3 / v1.85.4 / v1.85.3 / v1.84.5）
+  - 重点：v1.88.0-rc.1 引入 typed OpenTelemetry semconv、MCP stateless+stateful 双模、A2A agent-card 发现
+  - Docker 镜像全部 cosign 签名
