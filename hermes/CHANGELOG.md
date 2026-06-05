@@ -308,3 +308,22 @@ AI Gateway 调研的更新日志。
 - 内容_sha: `0b1d1a907a15f3332d13eeb0ab9c194f6ca99706`,commit_sha: `a0ac82a84a2fb82a2c6835ccb645291b71c6b77d`
 - 报告 URL:https://github.com/happysunxf/aigw/blob/main/hermes/reports/2026-06-05-1318-aigw-arch-benchmark-r2.md
 - 推送时间: 2026-06-05 13:18 CST
+
+## 2026-06-05 15:28 CST — MCP Gateway 专题 · MCP 2026-07-28 RC 协议剧变 + 全栈同步落地
+
+- **主题**:MCP Gateway (1/8 轮) · 聚焦 2026-05-29 标记的 `2026-07-28-RC` (current stable = 2025-11-25) 以及过去 14 天全栈同步
+- **核心数据点**:
+  ① **MCP 2026-07-28 RC 上线** (gh release id 331515066, 2026-05-29) —— 7 大 Major change:**Streamable HTTP 移除 `Mcp-Session-Id` 头与协议级 session** (SEP-2567);**MCP 无状态化** `initialize`/`notifications/initialized` 握手删除,每请求 `_meta` 带 `protocolVersion`/`clientInfo`/`clientCapabilities` (SEP-2575);**`server/discover` 新 RPC** 强制实现;**`subscriptions/listen` 取代 `resources/subscribe` + 旧 GET endpoint** 单连接 POST-response 推 4 类 `*ListChanged`/`resourceSubscriptions`;**删除 `ping`/`logging/setLevel`/`notifications/roots/list_changed`**;**Tasks 从 core 移到官方 extension** `io.modelcontextprotocol/tasks` `tasks/get` 轮询 + `tasks/update` 双向输入,删 `tasks/result` 阻塞 + `tasks/list` (SEP-2663);**MRTR 引入** 服务器不再发 `sampling/createMessage`/`elicitation/create`/`roots/list`,改 `inputRequests`/`inputResponses` 双向 pull (SEP-2322)
+  ② **6 Minor**:`ClientCapabilities`/`ServerCapabilities` 加 `extensions`;OTel trace context 写入规范 `traceparent`/`tracestate`/`baggage` 三 key (SEP-414);`tools/list` 确定性顺序提升 prompt cache 命中率;Streamable HTTP POST 强制 `Mcp-Method`/`Mcp-Name` 两标准头 + `x-mcp-header` (SEP-2243);新 `CacheableResult` 接口 `ttlMs`+`cacheScope` 利好中间代理缓存 (SEP-2549);resource not found 错误码 `-32002`→`-32602`
+  ③ **3 Deprecated + 治理**:`Roots`/`Sampling`/`Logging` 正式 deprecate (SEP-2577),HTTP+SSE 传输按 feature lifecycle 重归类,`includeContext` `"thisServer"`/`"allServers"` 升级 Deprecated;新增 Feature Lifecycle Policy (SEP-2596);SEP 改 PR-based (SEP-1850)
+  ④ **Python SDK v1.27.2 (5-29) 最关键** —— 4 个 backport 全围绕 per-session security binding:PR 2690 AccessToken 补 OIDC `subject`/`claims`;**PR 2719** Streamable HTTP/SSE session 绑定到 authenticated principal,principal 不一致→404(避免枚举)+ SSE 断开立刻清 session;**PR 2720** `run_task()` 生成的 task ID 嵌入 per-session marker(36→69 字符),`tasks/get`/`tasks/result`/`tasks/cancel` 跨 session 返 "task not found",**直接落实** spec 2025-11-25 authorization context 要求
+  ⑤ **Go SDK v1.6.1 (5-22)** 引入 `MCPGODEBUG=disablecontenttypecheck=1` escape hatch(补 v1.6.0 跨域保护 opt-in 后 Content-Type 校验无 escape 的洞);**TS SDK 2.0.0-alpha.2 (4-01)** `server@2.0.0-alpha.2` + `node@2.0.0-alpha.2` 同步;**Inspector 0.22.0 (6-04,1 天前)** 新增 URL-mode elicitation (PR #1423/SEP-1036) + CI 切 OIDC trusted publishing (npm 签名治理) + claude.yml 加 author_association 门控
+  ⑥ **MCP Registry v1.7.9 (5-12)** —— 依赖升级(pulumi/sdk 3.234→3.237 / go-git/v5 5.18→5.19 / golang.org/x/net 0.52→0.53 / containerd 1.7.30→1.7.32 等),**#1281** `validators/oci` 上游限流 fail-closed,**#1253** 认证文档补 OpenSSL 3.x Ed25519 要求,ToolHive Registry Server 入选 community projects
+  ⑦ **Docker MCP Gateway v0.42.2 (5-28)** —— 关键 PR "Narrow OCI label schema to descriptive fields only" 引入 `catalog.ImportedServer`,OCI image label `io.docker.server.metadata` 收窄到只读 descriptive 字段,runtime 字段(Command/Volumes/User/ExtraHosts/AllowHosts/DisableNetwork/Remote/SSE/OAuth/Env/LongLived/Policy)由 catalog author 提供;配套 `argsAndEnv` 跳过 `-` 开头值防 docker 误解析,审计侧要点
+  ⑧ **agentgateway v1.3.0-alpha.1 (5-23, kgateway 血统)** —— 61+ PR,MCP 相关:`a2a` 作一等 backend(#1841)+ `mcp` resources subscribe/unsubscribe 实现(#1857)+ resource multiplex(#1896)+ 协议一致性(#1874)+ 显式 target 选择(#1839)+ MCP authz 重构(#1907)+ **Okta 作 MCP 一等 auth provider**(#1831,继 OAuth 之后)+ hostRewrite 修复(#1864)
+- **AI Gateway 实操清单**(基于 RC):① 移除 `Mcp-Session-Id` 路径 ② 实现 per-request capability ③ 探针弃 `ping` 改 `server/discover`/HTTP 200 ④ `tasks/result` 标 deprecated + 长任务独立连接池 ⑤ MRTR 重写 push→pull ⑥ 缓存层读 `CacheableResult.ttlMs`+`cacheScope` ⑦ OTel 头透传 ⑧ HTTP 头白名单
+- **协议破坏性**:7 Major / 6 Minor / 3 Deprecated / 1 Other / 2 Governance;**Major 项里 5/7 直接影响网关/代理**,过去三个版本最强
+- **待观察**:stable 时间窗("07-28"标签暗示 7 月底 GA);`tasks/list` 真删性(SEP-2663 有反对意见);MRTR 客户端改造进度(TS 2.0.0-alpha→Q3 末可用);Envoy/Higress/Kong/APISIX 的 MCP filter RC 适配进度
+- 内容_sha: `b9c6006f59f6105db2cd80c9ef992e85d5c6893e`,commit_sha: `c8cc45ab052b6e38382e90f3ead164ed83e6ca70`
+- 报告 URL:https://github.com/happysunxf/aigw/blob/main/hermes/reports/2026-06-05-1528-aigw-mcp-2026-07-28-rc.md
+- 推送时间: 2026-06-05 15:28 CST
