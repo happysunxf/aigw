@@ -1,3 +1,12 @@
+## 2026-06-05 16:30 CST · AI 网关实现机制深度还原(8 核心机制 + 4 主流源码对照 + 小 B 副业启示)
+
+- [2026-06-05-1630-aigw-implementation-deepdive.md](reports/2026-06-05-1630-aigw-implementation-deepdive.md)
+  - 主题:**AI 网关实现机制深度还原**(非发版追踪,非市场盘点)
+  - 内容:5 个原生痛点 → 5 层架构 → 请求数据流 → 8 个核心机制(协议归一化 / 智能路由 / 冷却 fallback / 凭证轮换 / 重试退避 / 语义缓存 / 流式处理 / 可观测) → 4 款主流实现源码对照(LiteLLM Python / Envoy AI GW Go+ext_proc / Higress Go+WASM / Portkey TS+Workers) → 行业全景 + 小 B 副业启示
+  - 源码引用:LiteLLM router.py / cooldown_handlers.py / cooldown_cache.py / lowest_latency.py、Envoy AI Gateway processor_impl.go、Higress ai-proxy main.go / openai.go、Portkey chatCompletionsHandler / handlerUtils / retryHandler / conditionalRouter / responseHandlers
+  - 字数:约 18000 字 · 报告大小:54459 bytes
+  - 适用读者:做 AI 网关选型 / 自研 / 副业切入的工程师
+  - 关键判断:纯转售 AI Gateway 窗口期 ≤ 12 个月,必须做"垂直行业网关 + 业务插件";给副业的 6 条具体启示 + "法务 AI 网关 Lite"产品形态最小可行思路
 ## 2026-06-05 09:50 CST · MCP Gateway 生产治理集中落地（cron 1/8 轮，第 4 视角）
 
 - [2026-06-05-0950-aigw-mcp-governance-cluster.md](reports/2026-06-05-0950-aigw-mcp-governance-cluster.md)
