@@ -257,3 +257,11 @@ AI Gateway 调研的更新日志。
   - v1.3.0 GA blocker 集：**#2035 agctl publish**（CLI 不发版等于没做）/ **#1609 AI Guardrail Backend**（Guardrails 专题最大缺口）/ #2056 policy inheritance / #1866 backend.ai.* policy compose
   - 观点：v1.3.0 GA 大概率**滑到 6/25** — 7 个 H 级 PR 1 周内全 merge + QA 几乎不可能；与 Envoy 4 个月 minor 形成鲜明对比，agentgateway 押注"月度 minor + 月度 freeze"
   - 状态：本地 → 推送成功（content_sha=28bc88cad822d702c6b6ef2140c9195a9068f856）
+## 2026-06-05 10:31 CST — 第 16 次(hour%7=3,语义路由/成本优化 · 第 3 视角)
+
+- 主题:成本归因精度 + 级联/投机 + 后台预算治理
+- 角度切片:继 03:06(角度 A,跨厂商 schema/sort/缓存键)+ 03:48(角度 B,开源路由器/路由安全/budget ceiling)后的「前-中-后台」三段最后一刀。
+- 报告:`hermes/reports/2026-06-05-1031-aigw-routing-cost-attribution.md`(11.8KB)
+- 关键信号:① LiteLLM PR #28626 把 `data_residency` 变成成本乘数(EU/US uplift),② PR #28569/#28572 补齐 Vertex/Bedrock Claude 1h 缓存写价(少算 ~60% 修复),③ PR #29358 + cherry-picks #29361/#29363 修 `ResetBudgetJob` lost-update race(跨 1.84/1.86/1.87 三条 active line 同时 backport),④ PR #28476 修 retry 链下成本被钉在 0,⑤ PR #29273 修运行时 `add_deployment` 不进 budget 限额,⑥ vLLM 0.22.0 暴露统一 *proposer backend* ——「speculative decode 网关化」是下半年值得追踪的路由-成本交叉方向,⑦ Portkey 2026-05-19 安全加固集群 + 2026-02-19 v2 公告,5 个月 release-tag 空窗(转入 v2 内部 review)。
+- 内容_sha: `59dc272b8934ff8f1a54ea14befdc91282e7a5cc`,commit_sha: `2d4b251c528638f583fd9026bd08c429e04abaef`
+- 推送时间: 2026-06-05 10:31 CST
