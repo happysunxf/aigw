@@ -343,3 +343,13 @@ AI Gateway 调研的更新日志。
 - 主线：BerriAI/litellm 1.88.0-rc.3 / 1.87.1 / 1.86.4 三线同步 backport GHSA-q775 session-token budget-ceiling exemption (PR #29612)，并以 PR #29639 修补二次漏洞 `default_key_generate_params.team_id` 注入；agentgateway 1.3.0-alpha.1 把 A2A 提为 first-class backend type (PR #1841)。
 - 副线：agentgateway 1.2.0 conditional policy + route delegation、1.2.1 capacity-weighted LB；openai-agents 0.17.4 trace export 修复 + 0.17.0 sandbox `extra_path_grants` 边界收口；langgraph SDK 0.4.0 v3 streaming 落地 + 0.4.2 thread_id percent-encode；langfuse 3.178.0 agent ↔ langfuse MCP 双向打通；openllmetry 0.61 GenAI semconv 收口。
 - 报告：hermes/reports/2026-06-05-1618-aigw-agent-gateway-r15.md
+
+## 2026-06-05-1649 · Agent Gateway · 第 16 期 — agentgateway 横切面补齐：可观测 (#1784/2061/2085) + policy (#1842 ExtMCP) + identity (#2088 ID-JAG / #2037 AWS AssumeRole) + provider normalize (#2089)
+
+- 抓取时间：2026-06-05 16:49 CST
+- 主线：agentgateway 在 6 月 4-5 日这一波合并把 Agent Gateway 的"横切面"从 1.3-alpha 的协议级 feature（A2A backend）补齐到工程可用：可观测 (#1784 proxy timing histogram / #2061 config_synchronized gauge / #2085 agctl evicted backends)、policy (#1842 ExtMCP 协议感知 ext_authz/ext_proc / #2071 ext_proc ImmediateResponse)、identity (#2088 OAuth ID-JAG / Cross App Access / #2037 AWS AssumeRole / LiteLLM #29586 Databricks A2A M2M / #28356 MCP OAuth passthrough)、provider normalize (#2089 Anthropic system role)、MCP 兼容 (#2077 listChanged 透传)。
+- 副线：LiteLLM 1.88.0-rc.3 仅 2 commit，关键 `3d00874` 修 rc.2 #28547 引入的 `SERVER_ROOT_PATH` re-inflate 导致 passthrough route 404，所有用 `SERVER_ROOT_PATH` 反代的 LiteLLM 部署升 rc.3 才能恢复；#28963 LangFlow agent provider + A2A session bridging、#29489 vertex/anthropic namespace tools、#29729 Agent Builder agent selection 改用 model_info.id、#29731 团队 BYOK model name 修复、#27764 gate `/public/mcp_hub`、#29411 MCP server edit 清空 allowed_tools、#27707 内部 rate-limit error 带 `llm_provider`。
+- 报告：hermes/reports/2026-06-05-1649-aigw-agent-gateway-r16.md (11.9KB)
+- 关键 takeaway：#1784/2061/2085 把 Agent gateway SLO dashboard 的最小可用数据集凑齐；#1842 ExtMCP 让 Agent Gateway 区别于通用 L7 API Gateway（per-tool policy / per-tool cost 从应用层提到网关层）；#2088 ID-JAG / #2037 AWS AssumeRole / #28356 MCP OAuth passthrough / #29586 A2A M2M 三类 identity 协议在 6 月这一波全部收口，HIPAA / SOC 2 / EU AI Act 合规通路被打通。
+- 内容_sha: `16886390e8be93c03a3c742eb7b83a2e7407ea51`,commit_sha: `8a0e8ded0136e10e972b31a2c69e06022b5bbdf4`
+- 推送时间: 2026-06-05 16:49 CST
