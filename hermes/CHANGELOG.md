@@ -371,3 +371,15 @@ AI Gateway 调研的更新日志。
 - Envoy AI Gateway #2132 日志脱敏精细化，**不再误伤工具 schema 与 response_format**
 - 横切趋势：会话级 sticky 策略路由 / 工具调用面成主战场 / guardrail 真正纳入 OTel 审计 / 多 provider 拼装成网关原语
 - 报告：`reports/2026-06-05-1819-aigw-guardrails-roundup.md`（11.5KB，content_sha=44996661c8fe59ab35bcfb5e2d2680698aa33228, commit=b89d15209b3d7cff916c17bcc3c0c04217771288）
+
+## 2026-06-05 18:58 CST · Guardrails & 安全 · 5 期轮值(运行时注入防御 / 越狱评测 / 策略执行)
+
+- guardrails-ai **v0.10.2**(2026-06-04)发布:PyPI trusted publishing(#1493)+ SECURITY_ADVISORY.md 制度化(#1474/#1478/#1490)+ Aikido CI 模板注入 AI 修复(#1467)+ litellm pin 放宽到 >=1.83.0(#1484)
+- LiteLLM 本周 OTel guardrail span 闭环:#29470 passthrough emit span + #29552 修补 missing span;#29339 Vigil Guard 升级为原生 provider; #28594 panw_prisma_airs timeout 强转 float(防字符串配置注入)
+- Envoy AI Gateway #2132(已合并)日志脱敏改为 field-level,保留 request_id/model/token_count 用于排障
+- Higress v2.2.2(2026-05-26)默认开启 wasmplugin 签名校验
+- Kong 3.9.2(2026-06-04)纯 CVE 修复,无 AI 新 feature
+- agentgateway v1.3.0-alpha.1(2026-05-23)+ 近 5 日 33 PR,重点:#2077 MCP tools.listChanged 多路复用广播、#2075/#2084 栈深度限制(防深递归 DoS)
+- 横切:runtime injection 防御从 LLM 内部行为 → 网关/代理/审计三层共担;选型应按层(模型层 prompt 覆盖 / 网关层 tool payload / 审计层 SLSA)评估
+- 行动项:2 周内升 guardrails-ai v0.10.2 / 本月抓 OTel guardrail span trace / 季度审计 string-typed guardrail 配置 / 架构评审 MCP 工具 schema 校验位点
+- 报告:(11.0KB, content_sha=63225df210e9ad85ec41de9c22606d6f1d128662, commit=754e16fe4c904cf628aa5f3fe0883478d8aa97dd)
