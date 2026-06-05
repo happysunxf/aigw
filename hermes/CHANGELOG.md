@@ -460,3 +460,18 @@ AI Gateway 调研的更新日志。
 - 节奏观察:v2.2.1 → v2.2.2 间隔 47 天,本期 37 项(显著低于 v2.2.1 的 65 项),更偏「质量收口 + 治理合规」而非爆发式新功能
 - 报告:`reports/2026-06-05-2134-aigw-release-higress-v222.md` (12.4KB, content_sha=38bf3050e5e1256e7dd26a79b456aa6c31f0daf2, commit=078d8d26bb669570dba18f5ac32a3c80b0db7759)
 
+## 2026-06-05 22:53 CST · MCP Gateway 专题 · 客户端 SDK 可靠性工程(rust-sdk SEP-2577/SEP-837, go-sdk ClockSkew, python-sdk in-process tests, Inspector 0.22.0)
+
+- 主题:MCP Gateway 专题(hour % 7 = 1),数据源:GitHub API 拉取 7 个 MCP 仓(spec/rust-sdk/go-sdk/python-sdk/typescript-sdk/conformance/inspector/registry)过去 36h commits + release
+- 关键看点(4 个 SDK 仓 + 2 个 release):
+  - **rust-sdk #884 (SEP-2577) commit `82b04a3`** (6/4 20:43 CST):首次把 Roots/Sampling/Logging 三件套 client capability 在编译器层标 deprecated,无协议层 wire 变更,advisory-only;给 Go/Python/TypeScript SDK 打了「advisory deprecation = 零 wire 风险协议演化」的样本
+  - **rust-sdk #883 (SEP-837) commit `f1ef2ec`** (6/4 22:53 CST):OIDC Dynamic Client Registration 强制带 `application_type`,缺省 `"native"` 匹配 CLI/desktop loopback 重定向;新增 `OAuthClientConfig::with_application_type` 显式选 `"web"`;同步在 hosted client metadata document 路径设 `application_type=native`,让两种客户端身份注册路径一致——企业 IdP 必踩坑
+  - **go-sdk #969 commit `5045d86`** (6/5 18:16 CST):`RequireBearerTokenOptions` 新增 `ClockSkew time.Duration` 容忍 IdP 时钟漂移,默认零值保留旧严格比较,正值 opt-in 覆盖云托管 IdP / CDN 边缘 / 多 master IdP 集群的 NTP 漂移场景;`TestRequireBearerToken_ClockSkew` 四种情况覆盖
+  - **python-sdk #2764/#2765/#2767** (6/2-6/3):stdio / SSE / StreamableHTTP 三种 transport 集成测试**从 fork+exec 改 asyncio 进程内**,不是协议变更是测试基础设施,StreamableHTTP 已成为工作组主推 transport
+  - **Inspector 0.22.0** (6/4 20:34 CST, PR #1428) + **PR #1423** (URL-mode elicitation, 6/4 01:09 UTC):Elicitation 从 in-band JSON 弹窗改为 server 返回 URL + client 浏览器跳转,本质是 out-of-band authorization UI delegation,第一个多 channel elicitation
+  - **conformance 0.2.0-alpha.2** (6/3 22:27 CST, PR #328) + #318 + #321:version-aware Connection/MockServer abstraction,把 spec schema 类型按 version vendor 进仓,让一个 MockServer 能在 v0/v1/draft 之间切换
+- spec 端:已实质 freeze 到 `2026-07-28-RC`,6/2 后合入 main 都是 editorial/链接修复,6/5 20:31 CST 的 `6d44151` 是把 `## Message Patterns` 改回 `### Message Patterns` 配合 #2862 auth spec 拆页后的目录层级调整
+- 节奏观察:MCP 工作组进入「协议 freeze + SDK 治理」的典型 1.0 临近窗口;4 个独立 SDK 仓在同一 36h 窗口提交了 client-side 工程化补丁,主题是「对真实部署中协议层完美但客户端运行时报错的场景做防御性工程」
+- 横切判断:对 AI 网关最实质的三件事——rust #884 提醒 v2 路径会断需把 rmcp capability 调用集中到 adapter module、rust #883 提醒 OIDC 代理要透传 `application_type`、go #969 提醒 `ClockSkew` 跟 token cache TTL 强耦合
+- 行动项:对接 rust-sdk 的网关开 compiler warning 监控捕获 #884 deprecation;做 OIDC client registration 代理的网关默认透传 `application_type=native`;跑 StreamableHTTP 的网关借鉴 python-sdk #2767 模式做 in-process reverse proxy 回归套件
+- 报告:`reports/2026-06-05-2253-aigw-mcp-sdk-reliability.md`(12.2KB, content_sha=fede98a9c8f6dfce476c697a4e0a240b0b89701a, commit=b7e120edd60b93e1271494e8675f7f6020381778)
