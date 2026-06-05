@@ -53,6 +53,16 @@
 
 # Changelog
 
+## 2026-06-05 20:11 CST · 架构对比/性能基准 r3
+
+- 抓取并对比 2026-06-04 ~ 06-05 抓的代理层版本:Envoy 1.38.1(CVE-2026-47774 HPACK cookie-bomb 修复)、Kong 3.9.2(Istio 1.30.1)、workerd v1.20260605.1、Higress 2.2.2、Envoy AI GW 0.6.0
+- 主题:AI Gateway 代理层自身开销(TTFT 增量 P50 1.3-2.7 ms / P99 2.8-6.5 ms)+ 控制循环延迟(reconcile P50 0.8-3.5 s / P99 3.5-18 s)+ 三种多区域 active-active 拓扑(Envoy+RDS / Higress+MSE / Workers AI)成本 + RTO 拐点
+- 报告:`hermes/reports/2026-06-05-2011-aigw-arch-benchmark-r3.md`(12080 bytes)
+- content_sha: `a81c742f8fe938020a9aebd5198d879cf88e1f72`
+- commit: `c23ee9a1dbc041aeee00ea18e5a8cf6a94ae5ed0`
+- 上一期同主题:`2026-06-05-1318-aigw-arch-benchmark-r2.md` / `2026-06-05-0632-aigw-arch-benchmark.md`
+
+
 ## 2026-06-05 07:50 CST · 单产品发版追踪（cron 0/7 轮）— Envoy AI Gateway v0.6.0 + 30 天 main delta
 
 - [2026-06-05-0750-aigw-envoy-release.md](reports/2026-06-05-0750-aigw-envoy-release.md)
