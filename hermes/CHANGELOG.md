@@ -1,3 +1,20 @@
+## 2026-06-05 08:34 CST · MCP Gateway 部署架构演化（cron 1/8 轮，第 3 视角）
+
+- [2026-06-05-0834-aigw-mcp-deploy-arch.md](reports/2026-06-05-0834-aigw-mcp-deploy-arch.md)
+  - 主题：**MCP Gateway 部署架构演化**（hour%7=1，第 3 视角）— 不重复 01:06 协议 + 01:46 五大产品
+  - 抓取时间：2026-06-05 08:36 CST
+  - 角度：把 8 个 MCP Gateway 产品按部署模式分为 4 类——A. Centralized / B. Per-pod sidecar / C. Client-side proxy / D. Gateway-as-a-Service
+  - 重点：模式 B（sidecar）**ToolHive v0.29.0/v0.29.1** PR #5364 downward API 冻结 MCPServer generation + PR #5448 Cedar authz 看 VirtualMCPServer 名字 = 2026-06 最重要的 sidecar 身份边界方案
+  - 重点：模式 A 中央化网关的"协议一致性"——kgateway v2.3.2 (2026-06-04) 升级 Envoy 1.37.3 修 CVE-2026-47774，**但 release notes 完全没提 MCP**，与 Envoy AI Gateway 分化
+  - 重点：模式 A 的 schema migration 拦路虎——mcp-context-forge Alembic + ToolHive StorageVersionMigrator + 12 个 v1beta1 CRD 接入 storage-version migration；**只有这两个产品在认真做**
+  - 重点：模式 C（client-side proxy）——Archestra v1.2.56/57 (2026-06-04 一天双发) team-scope catalog + GitHub App auth + 移除 catalog preset（破坏性变更）
+  - 重点：模式 D（Gateway-as-a-Service）——Cloudflare graphql-mcp-server 0.2.1 (2026-06-02) patch changelog 揭示**4+ 个 MCP server 共享 Durable Object class `UserDetails`**，删除时跨产品级联破坏（code 10064），金融/医疗合规天坑
+  - 重点：模式 D 微软侧——`microsoft/mcp` 仓 6 月头两天发 Azure.Mcp.Server-3.0.0-beta.16 + Template.Mcp.Server-0.0.12-alpha.6380381；每个 Azure 服务一个 MCP server = 模式 A 的 SaaS 形式
+  - 重点：**本轮最被低估的信号**——MCP Inspector 0.22.0 (2026-06-04) PR #1423 已实现 **URL-mode elicitation**（协议还在 RC，2026-07-28 才发布）——网关必须 enforce "elicitation URL 白名单"，但**8 个 MCP Gateway 产品 release notes 没有任何一个提过 elicitation 防护**，是 6 月安全盲点
+  - SDK 侧：Python SDK v1.27.2 (2026-05-29) bugfix 优先；TypeScript SDK v1.29.0 (2026-03-30) **3 月后没新版本**——推测在等协议 RC 落地
+  - 覆盖产品数：8 个（ToolHive / Archestra / Cloudflare / Docker / kgateway / Microsoft MCP / MCP Inspector / MCP SDK）
+  - 状态：本地 → 推送（待补 commit sha）
+
 # Changelog
 
 ## 2026-06-05 07:50 CST · 单产品发版追踪（cron 0/7 轮）— Envoy AI Gateway v0.6.0 + 30 天 main delta
