@@ -415,3 +415,21 @@ AI Gateway 调研的更新日志。
 - 横切判断:本批 release 全为安全硬化 + 小坑修复,无结构性性能变更;真拐点是 Envoy AI Gateway 0.7/0.8 切 in-proc ext_proc(理论 RPS 翻 2-3 倍);**别被 AI Gateway 多花 5ms 劝退**
 - 行动项:立即升 Envoy Gateway 1.8.1 / kgateway 2.3.2 / Kong 3.9.2 / Envoy 1.38.1;本月用 `llm-d/llm-d` v0.7.0 bench 套件重跑生产 5% 影子流量;K8s HPA 优先 Higress / Envoy Gateway(冷启 < 1s)、FaaS / 边缘优先 workerd(< 50ms);配置审计 `envoy.reloadable_features.coalesce_lb_rebuilds_on_batch_update` 在大批量 EDS 场景需重新打开
 - 报告:`reports/2026-06-05-2049-aigw-arch-benchmark-r4.md`(12.4KB, content_sha=b53fffe90f9d546eb36a847498457b0b118c3f91, commit=786e73a68342c1f2d8819e1c35ed5406a0197720)
+
+## 2026-06-05-2134 CST · 单产品发版追踪 · Higress v2.2.2 发版深挖
+
+- 主题:单产品发版追踪(轮换到 Higress),数据源:GitHub Releases API `alibaba/higress` v2.2.2 (2026-05-26 释出,37 项变更) + v2.2.1 / v2.2.0 / v2.1.11 同窗对比 + higress.cn 官网/博客
+- 关键看点:
+  - **Bedrock Anthropic 链路深水区**:`#3820` 砍掉 OpenAI→Converse 两段桥接,直连 Bedrock Mantle Anthropic Messages 原生端点;`#3788` 修 `reasoningContent` 错误合并为 plain text(配 `redactedBlockIndexes` 状态机);`#3786` 修并行 tool call 时的 `contentBlockIndex` 错位;`#3799` 修 Claude `input:{}` 空对象被吞;`#3756` `/v1/messages`→OpenAI `chat/completions` 转换保留 `thinking`/`redacted_thinking`,新增 `preserve_thinking` / `promote_thinking_on_empty` provider 级开关
+  - **AIGC 视频能力补齐**:`#3742` KlingAI provider 正式入仓(覆盖 OpenAI-compatible 与 native Kling 协议、官方 AK/SK JWT 和第三方 gateway Bearer 两种鉴权、文生视频 + 图生视频)
+  - **AI 代理一致性**:`#3827` `ai-proxy` 新增 `modelToHeader`(默认 `x-higress-llm-model-final`),在 `model_mapper` 改写后同步写入 header 并 `DisableReroute`,直接封死「`model-mapper`→限流插件读不到真正命中模型」的隐性 bug
+  - **计费透明度**:`#3766` OpenAI→Claude 流式 transformer 透出 `CacheReadInputTokens` 字段,Anthropic Prompt Caching 在网关侧第一次有可观测性
+  - **Nginx 迁移减阻**:`#3823` Nginx rewrite 兼容 WASM 插件,在 WASM 沙箱内安全执行 Nginx `rewrite`+`set` 语义,显式规避 CVE-2026-42945 heap overflow——Nginx Ingress 退役潮背景下关键减阻
+  - **Vertex AI Express Mode 闭环**:`#3695` + `#3777` 让 Express Mode 免填项目/区域路径,直接走 API Key URL query 鉴权,401 问题终结
+  - **国内模型路径迁移**:`#3722` 把 Qwen 兼容 endpoint 从已弃用 `/api/v2/apps/protocols/compatible-mode/v1/responses` 切到官方 `/compatible-mode/v1/responses`;`#3724` 新增 Qwen rerank 与 conversations API 路径
+  - **AI 安全护栏**:`#3738` `ai-security-guard` 新增 `responseContentFallbackJsonPaths` + `responseStreamContentFallbackJsonPaths` 让 Claude 响应也能走内容安全检查;`#3739` `ai-prompt-decorator` 加 `replace` 配置(字面量 / RE2 正则 / 按 role / 按顺序);`#3731` 取消 `Suggestion=block` 强制 fallback,改按风险维度阈值评估
+  - **稳定性与可观测性**:18 项 bug fix 覆盖 WASM 插件 nil 检查与 regex 预编译(`#3757`)、HTTPS upstream 自签证书(`#3770`)、Azure OpenAI v1 新 URL 识别(`#3765`)、controller 日志统一 JSON(`#3779`)、EnvoyFilter 不识别协议 warn log 带协议名(`#3801`)、`getRouteName` 在 `clearRouteCache` 后仍返回旧路由名(`#3576`)、`TARGET_ARCH` 白名单(`#3682`)
+  - **CNCF Sandbox 申报治理文件**:`#3830` README 中/英/日 3 版本加 OpenSSF Best Practices 徽章、`#3764` 更新 `SECURITY.md` 漏洞披露 SLA + 新增 `GOVERNANCE.md`、`#3754` 新增顶层 `MAINTAINERS.md`——Higress 2026 申报 CNCF Sandbox 的可见信号
+- 节奏观察:v2.2.1 → v2.2.2 间隔 47 天,本期 37 项(显著低于 v2.2.1 的 65 项),更偏「质量收口 + 治理合规」而非爆发式新功能
+- 报告:`reports/2026-06-05-2134-aigw-release-higress-v222.md` (12.4KB, content_sha=38bf3050e5e1256e7dd26a79b456aa6c31f0daf2, commit=078d8d26bb669570dba18f5ac32a3c80b0db7759)
+
