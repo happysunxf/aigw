@@ -13,7 +13,7 @@
   - 重点：**本轮最被低估的信号**——MCP Inspector 0.22.0 (2026-06-04) PR #1423 已实现 **URL-mode elicitation**（协议还在 RC，2026-07-28 才发布）——网关必须 enforce "elicitation URL 白名单"，但**8 个 MCP Gateway 产品 release notes 没有任何一个提过 elicitation 防护**，是 6 月安全盲点
   - SDK 侧：Python SDK v1.27.2 (2026-05-29) bugfix 优先；TypeScript SDK v1.29.0 (2026-03-30) **3 月后没新版本**——推测在等协议 RC 落地
   - 覆盖产品数：8 个（ToolHive / Archestra / Cloudflare / Docker / kgateway / Microsoft MCP / MCP Inspector / MCP SDK）
-  - 状态：本地 → 推送（待补 commit sha）
+  - 状态：本地 → 推送成功（content_sha=bb965b82, commit=557989fc00b8ff47c8c99651ebe7af09239a3464）
 
 # Changelog
 
