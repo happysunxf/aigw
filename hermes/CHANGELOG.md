@@ -222,3 +222,20 @@ AI Gateway 调研的更新日志。
   - 仓库健康：11,970★ / 1,105 fork / 187 open issues / pushed_at 2026-05-25 —— star 增速已明显放缓（>5 月仅 +2★）
   - 观点：Portkey 已经从"LLM gateway"重新定位成"AI Gateway + Agent Gateway + MCP Governance + Skills Registry"四件套；纯 LLM 路由场景 LiteLLM/OpenRouter 仍然更轻
   - 状态：本地 → 推送
+
+## 2026-06-05 09:13 CST · Agent Gateway 专题第 2 视角（cron 2/9 轮，v1.3.0 收尾期）
+
+- [2026-06-05-0913-aigw-agent-gateway-r13.md](reports/2026-06-05-0913-aigw-agent-gateway-r13.md)
+  - 主题：**Agent Gateway r13 — v1.3.0 收尾期**（hour%7=2，cron 2/9 轮第 2 视角）— 与 02:26 主题同，**专讲 6/2–6/4 三天 32 PR**
+  - 抓取时间：2026-06-05 09:13 CST
+  - 角度：上轮 02:26 讲 v1.2.0 + v1.3.0-alpha.1 主梁；本轮专讲 v1.3.0 GA 收尾档（5/23 alpha → 6/18 GA，26 天周期）
+  - 重点：**v1.3.0 milestone due 2026-06-18**（13 天后），**16 open PR / 7 个 H 级 blocker**；**v1.4.0 已排 2026-07-23**——月度列车成型
+  - 重点：**#2077 `tools.listChanged` multiplex 模式无条件广告** — MCP 协议 spec 修正级别修复，agentgateway 在协议一致性上**领先**所有竞品
+  - 重点：**#2070+#2085 agctl CLI 收尾**（version + config all + backends + trace + yaml/json 输出 + Makefile target）— 2026 年 6 月所有 AI Gateway 产品**最完整的可调试 CLI 矩阵**
+  - 重点：**#2055 Istio cluster-level `autoEnabled: true` 默认** — agentgateway 主动把 istio 集成从 opt-in per gateway 推成 autoEnabled cluster-wide
+  - 重点：**#2008 LLM 多 text block verbatim 拼接**（Anthropic/Bedrock citation 修复）— 协议转换层正从"OpenAI 形状"转向"保留 provider block 语义"
+  - 重点：**#2037 AWS AssumeRole** + #1929 Vertex native generateContent — agentgateway 已是"Anthropic/Bedrock/Vertex/OpenAI 一站 + 跨账号"
+  - 仓库健康：3048★ / 509 fork / 247 open issues（13 天 +12★/+2 fork；open issues 仍是高水位）
+  - v1.3.0 GA blocker 集：**#2035 agctl publish**（CLI 不发版等于没做）/ **#1609 AI Guardrail Backend**（Guardrails 专题最大缺口）/ #2056 policy inheritance / #1866 backend.ai.* policy compose
+  - 观点：v1.3.0 GA 大概率**滑到 6/25** — 7 个 H 级 PR 1 周内全 merge + QA 几乎不可能；与 Envoy 4 个月 minor 形成鲜明对比，agentgateway 押注"月度 minor + 月度 freeze"
+  - 状态：本地 → 推送成功（content_sha=28bc88cad822d702c6b6ef2140c9195a9068f856）
