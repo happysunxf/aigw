@@ -1,3 +1,30 @@
+## 2026-06-05 22:11 CST · MCP Gateway 专题(spec IA 重构 + Registry 错误卫生/SSRF 硬化)
+
+- [2026-06-05-2211-aigw-mcp-spec-ia-refactor.md](reports/2026-06-05-2211-aigw-mcp-spec-ia-refactor.md)
+  - 主题:**MCP Gateway 专题 · 36h 窗口(6/3 22:11→6/5 22:11 CST)**——「信息架构当成安全工程做」,spec 拆页 + Registry hardening 双线推进
+  - 规范侧(spec 仓 8 commits):
+    - **PR #2858(6/4 19:16 UTC 合,user: localden)**「Authorization spec split」:单页 `authorization.mdx` 拆成 4 子页(`index` + `authorization-server-discovery` + `client-registration` + `security-considerations`)+ `docs/docs.json` 站点导航同步
+    - **PR #2862(6/5 10:52 UTC 合,user: localden)**「Update the authorization spec structure/callouts」:6 文件 +83/-55,4 子页清理 + `changelog.mdx` +19 + `deprecated.mdx` +8
+    - 「`security-considerations.mdx`」第一次集中列 5 条 MUST(Token Audience Binding、PKCE、HTTPS、short-lived access token、refresh token rotation),是 SOC2/ISO 27001 重新对账的最佳窗口
+    - 影响:全 spec 子页 `…/authorization#…` 旧 anchor 失效,聚合型文档/CX 团队 wiki/PPT/FAQ 几乎肯定有死链
+  - 平台侧(registry 仓 8 commits):
+    - **PR #1207(6/3 14:56 UTC 合,user: Wolfe-Jam)**:feat: add cargo (crates.io) as a package registry type,Registry 第 5 个 package registry 类型(首个「包管理器语义」)
+    - **PR #1330(6/4 21:34 UTC 合,user: rdimitrov)**:SSRF 硬化:step-2 URL 预先 pin allowlist + `CheckRedirect` 每跳校验 + 5 MiB body cap;状态码 429→transient/retryable,403→crates-version disambiguate;共享 `containsMCPNameToken` 防 README 前缀混淆
+    - **PR #1335(6/5 06:59 UTC 合,close #1323)**:客户端取消 `context.Canceled`→HTTP 499 + 跳过错误日志,关闭 `superfluous response.WriteHeader` 警告
+    - **PR #1338(6/5 07:08 UTC 合,紧跟 #1335 9 分钟)**:**CWE-209 信息泄露 fix**——`GET /v0/servers`(公开未认证)把 pgx/pgconn 的 SQLSTATE/表名/约束名/列名吐回客户端,`huma.Error500InternalServerError(err)` 第 2 参数被序列化为响应体;fix 是 drop `err` from 500 call + 新增 `TestListServersError_realFailureDoesNotLeakDetail` 回归测试
+  - Inspector 0.22.0(6/4 12:36 UTC 发版,7 PR):
+    - **PR #1199**:npm OIDC trusted publishing + `NPM_CONFIG_PROVENANCE=true`,4 个包(inspector/-client/-server/-cli)不再依赖 NPM_TOKEN
+    - **PR #1270**:`.github/workflows/claude.yml` trigger `if:` 加 `author_association in {OWNER, MEMBER, COLLABORATOR}`,未授权用户评论 `@claude` 在 workflow 评估阶段 skip 不分配 runner
+    - **PR #1380**:npm audit fix 修 15/16 findings,🔴 critical `handlebars` → 4.7.9(JS injection / prototype pollution)
+    - **PR #1423**:URL-mode Elicitation(15:28 报告提过,本次 release 收录)
+  - 5 条新可操作清单:
+    1. spec 拆页断链批量校验脚本
+    2. 5xx 错误透传反模式 lint + 测试升级到「marshal body + assert no leak」
+    3. Go handler `errors.Is(err, context.Canceled)` 短路
+    4. 自家 npm 包切 OIDC trusted publishing
+    5. `@bot` 触发器 author_association gate(参考 #1270)
+  - 报告:约 13.7KB(正文),16.0KB 文件,内容深 ≥ 8+8 commits + 7 Inspector PR 的高质量聚合
+  - 不重复:01:06/01:46/08:34/09:50/15:28 五轮 MCP 报告(本轮为「IA 重组 + 错误卫生」专项)
 ## 2026-06-05 16:58 CST · AI 网关技术深度长文(7 万字 / 8 章 / 52 代码块)
 
 - [2026-06-05-1658-aigw-tech-deepdive-article.md](reports/2026-06-05-1658-aigw-tech-deepdive-article.md)
