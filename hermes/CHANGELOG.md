@@ -1,3 +1,21 @@
+## 2026-06-05 09:50 CST · MCP Gateway 生产治理集中落地（cron 1/8 轮，第 4 视角）
+
+- [2026-06-05-0950-aigw-mcp-governance-cluster.md](reports/2026-06-05-0950-aigw-mcp-governance-cluster.md)
+  - 主题：**MCP Gateway 生产治理集中落地**（hour%7=1，第 4 视角）— 不重复 01:06 协议/Auth IG、01:46 五大产品、08:34 部署架构
+  - 抓取时间：2026-06-05 09:50 CST
+  - 核心论点：**2026-06-04 是 MCP "生产治理" 协调日**——Auth IG 一次性 final 5 个 SEP（2350/2351/2352/2207/2468），Registry 同日合并 PR #1330 SSRF 硬化 + PR #1331 anchored match + 5 个依赖 bump
+  - 重点：SEP-2350 step-up scope 按 RFC 6750 §3.1 报"当前操作所需"而非"历史并集"；网关**不替客户端做 scope 合并**
+  - 重点：SEP-2351 显式用 `oauth-authorization-server` well-known URI 后缀；**MCP 不定义应用级 well-known**
+  - 重点：SEP-2352 多 AS 注册状态隔离——DCR 凭据按 issuer 锁定、CIMD 可移植、AS mismatch 必须 error；网关**按 issuer 拆分 DCR 注册表**
+  - 重点：SEP-2468 `iss` claim 防 OAuth mix-up attack；网关**出站强制注入 iss + 入站强制校验 iss**
+  - 重点：SEP-2207 OIDC refresh token——客户端应请求 `offline_access`，MCP server **不 require**；4 个官方 SDK 全在改
+  - 重点：SEP-2385（草案，open）Tool Auth Manifest——2 个协议元素解决"per-tool policy 协议级抓手"空缺；human_approval/audit_required 是网关执行点
+  - 重点：SEP-2395 MCPS 加密层——已关 1 次又重开；TapAuth 数据 41% MCP server 零鉴权；CVE-2025-6514 / CVE-2025-49596；目前是 proposal，没进 roadmap
+  - 重点：Registry PR #1330 cargo SSRF 硬化（host pin + 重定向逐跳 pin + 5MiB limit）+ 共享 `containsMCPNameToken`（防 `widget-pro` 误匹配 `widget`）
+  - 重点：Registry PR #1331（draft）PyPI/NuGet 引入 anchored match——**严格更严的行为变更**；已存储 server 不追溯
+  - 操作建议：6 月底前网关要做的 4 个升级（iss 验证 / scope 不合并 / 单一 well-known / 多 AS 凭据隔离）；紧盯 SEP-2385 和 SEP-2395 两个草案
+  - 状态：本地 → 推送成功（content_sha=af5e8130, commit=71b4705a）
+
 ## 2026-06-05 08:34 CST · MCP Gateway 部署架构演化（cron 1/8 轮，第 3 视角）
 
 - [2026-06-05-0834-aigw-mcp-deploy-arch.md](reports/2026-06-05-0834-aigw-mcp-deploy-arch.md)
