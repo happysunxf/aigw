@@ -327,3 +327,10 @@ AI Gateway 调研的更新日志。
 - 内容_sha: `b9c6006f59f6105db2cd80c9ef992e85d5c6893e`,commit_sha: `c8cc45ab052b6e38382e90f3ead164ed83e6ca70`
 - 报告 URL:https://github.com/happysunxf/aigw/blob/main/hermes/reports/2026-06-05-1528-aigw-mcp-2026-07-28-rc.md
 - 推送时间: 2026-06-05 15:28 CST
+
+## 2026-06-05-1618 · Agent Gateway · 第 15 期 — session-token budget-ceiling exemption 撕开 LiteLLM 多租户成本归因的最后一道墙 + agentgateway 1.3 A2A 后端
+
+- 抓取时间：2026-06-05 16:18:36 
+- 主线：BerriAI/litellm 1.88.0-rc.3 / 1.87.1 / 1.86.4 三线同步 backport GHSA-q775 session-token budget-ceiling exemption (PR #29612)，并以 PR #29639 修补二次漏洞 `default_key_generate_params.team_id` 注入；agentgateway 1.3.0-alpha.1 把 A2A 提为 first-class backend type (PR #1841)。
+- 副线：agentgateway 1.2.0 conditional policy + route delegation、1.2.1 capacity-weighted LB；openai-agents 0.17.4 trace export 修复 + 0.17.0 sandbox `extra_path_grants` 边界收口；langgraph SDK 0.4.0 v3 streaming 落地 + 0.4.2 thread_id percent-encode；langfuse 3.178.0 agent ↔ langfuse MCP 双向打通；openllmetry 0.61 GenAI semconv 收口。
+- 报告：hermes/reports/2026-06-05-1618-aigw-agent-gateway-r15.md
