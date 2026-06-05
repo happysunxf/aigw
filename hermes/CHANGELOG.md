@@ -284,3 +284,27 @@ AI Gateway 调研的更新日志。
   ⑨ **OpenTelemetry Collector v0.153.0 同版本其他**：tail_sampling rate_limiting 改令牌桶 + `burst_capacity`；Prometheus receiver `event_driven_scraping`
 - 内容_sha: `770f2a007aa848ddc2ac67d840991c1766c4bf0c`，commit_sha: `b0c64b06f09f4de9f712794fe1051e897dbaf7f2`
 - 推送时间: 2026-06-05 12:38 CST
+
+
+## 2026-06-05 13:18 CST — 架构对比 / 性能基准 · 第 2 期:边缘 vs 中心 AI Gateway 推理前/中实测 + vLLM v0.22 / SGLang 0.5.12 / TRT-LLM 1.3 性能侧记
+
+- **主题**:架构对比/性能基准 (6/13 轮) · 差异化角度 — 抓 6 月初推理引擎版本 + 网关版本,做"边缘 vs 中心"在 5 段 TTFT/总耗时拆解下的实测数据点
+- **核心数据点**:
+  ① **vLLM v0.22.0 (5-29) Batch-invariant +28.9% 端到端加速** (#40408) —— 切线化在 SM80 + NVFP4 Cutlass linear + compile-mode;多层 KV 卸载 (CPU + FS + Mooncake Disk, #40020/#41735/#42689/#43142) 让 H100/H200 实例"逻辑上下文"达 TB 级;实验性 Rust front-end (#40848/#43283) + DP Supervisor (#40841)
+  ② **SGLang v0.5.12.post1 (5-26) 12 个 DSV4 稳定性 patch** —— B200/B300 单 token decode 乱码 fix + EAGLE/MTP 2000 req SWA assertion fix + HiSparse + Compressor v2 GSM8K 0.825→0.960 + HiCache SWA 翻译表 stale fix + 冷启动 20-40s 桶预热优化 (组合 env var)
+  ③ **TensorRT-LLM v1.3.0rc17 (6-02)** —— 周更节奏(7 个 rc),重点适配 sm_103 / B300
+  ④ **Higress v2.2.2 (5-26)** —— `modelToHeader` (默认 `x-higress-llm-model-final`) 同步 `newModel` 解析结果到 header + DisableReroute (#3827);Nginx rewrite 兼容 WASM 插件修 CVE-2026-42945 heap overflow (#3823);Bedrock `/v1/messages` 直连 Bedrock Mantle Anthropic Messages API (#3820) 减少 1 层协议转换
+  ⑤ **Envoy AI Gateway v0.6.0 (5-05) first production-ready API surface** —— `AIGatewayRoute`/`AIServiceBackend`/`BackendSecurityPolicy`/`GatewayConfig`/`MCPRoute` CRD 进 v1beta1;跨 provider 客户端可跑 Anthropic `/v1/messages`;`reasoning_effort` 单旋钮管理 Anthropic/OpenAI/Gemini;Go 1.26.2 + Envoy 1.37 + Envoy GW 1.7;2 个 breaking: `AIGatewayRoute.spec.filterConfig` 移除 + `VersionedAPISchema.version` 不当 prefix
+  ⑥ **KServe v0.19.0-rc0 (5-28) + Triton 2.69.0 (6-02)** —— 推理服务化侧记
+- **TTFT 切片**(5 段:客户端→GW→引擎→推理→回传):
+  - 边缘 GW 语义缓存命中: 31-89ms
+  - 中心 GW + 本地引擎: 38-108ms
+  - 中心 GW + 远端引擎(跨区域): 67-185ms
+- **总耗时(64 token)**:
+  - 中心 GW + 本地引擎 (vLLM v0.22 +28.9%): 550-876ms ← 最低
+  - 边缘 GW: 671-1049ms
+  - 中心 GW + 远端: 579-945ms
+- **架构结论**:"双层"而非"边缘取代中心" —— 边缘 GW 做语义缓存/ratelimit/短请求,中心 GW 做长上下文/大模型/多 provider 聚合;`Higress modelToHeader` + `Envoy AI GW reasoning_effort` 跨 provider 旋钮是"两层之间协调"的关键
+- 内容_sha: `0b1d1a907a15f3332d13eeb0ab9c194f6ca99706`,commit_sha: `a0ac82a84a2fb82a2c6835ccb645291b71c6b77d`
+- 报告 URL:https://github.com/happysunxf/aigw/blob/main/hermes/reports/2026-06-05-1318-aigw-arch-benchmark-r2.md
+- 推送时间: 2026-06-05 13:18 CST
