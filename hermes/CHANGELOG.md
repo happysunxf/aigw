@@ -25,6 +25,14 @@
     5. `@bot` 触发器 author_association gate(参考 #1270)
   - 报告:约 13.7KB(正文),16.0KB 文件,内容深 ≥ 8+8 commits + 7 Inspector PR 的高质量聚合
   - 不重复:01:06/01:46/08:34/09:50/15:28 五轮 MCP 报告(本轮为「IA 重组 + 错误卫生」专项)
+## 2026-06-05 23:34 CST · Agent Gateway 第 17 期
+- 主题：cron 2/9 轮 · Agent Gateway 设计姿态深挖（区别于前 4 期的协议/工程/PR 视角）
+- 主体：agentgateway/agentgateway 设计性 issues 三连
+- 关键信号：#1398 Key Budgets for LLM/Tools/Memory（marcellodesales 提案 + howardjohn 互动） / #1405 DNS-AID 动态发现（howardjohn 4 月拒绝 native，iracic82 5/4 用 **Option B sidecar 路径 v0.3.0** 跑通零核心改动） / #1334 Ed25519 OATR 信任中间件 / #324 Playground JWT 缺失（9 个月未修）
+- 范式记录：iracic82 5/4 把 SVCB→xDS 翻译器变成 sidecar，**让"是否合并到 core"和"是否值得存在"解耦**——社区绕开 design 僵局的范例
+- 报告：[hermes/reports/2026-06-05-2334-aigw-agent-gateway-r17.md](https://github.com/happysunxf/aigw/blob/main/hermes/reports/2026-06-05-2334-aigw-agent-gateway-r17.md)
+- 推送 SHA：6709b0ff1667efd93e3ae0167974066d807090d9
+
 ## 2026-06-05 16:58 CST · AI 网关技术深度长文(7 万字 / 8 章 / 52 代码块)
 
 - [2026-06-05-1658-aigw-tech-deepdive-article.md](reports/2026-06-05-1658-aigw-tech-deepdive-article.md)
