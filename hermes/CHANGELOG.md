@@ -383,3 +383,15 @@ AI Gateway 调研的更新日志。
 - 横切:runtime injection 防御从 LLM 内部行为 → 网关/代理/审计三层共担;选型应按层(模型层 prompt 覆盖 / 网关层 tool payload / 审计层 SLSA)评估
 - 行动项:2 周内升 guardrails-ai v0.10.2 / 本月抓 OTel guardrail span trace / 季度审计 string-typed guardrail 配置 / 架构评审 MCP 工具 schema 校验位点
 - 报告:(11.0KB, content_sha=63225df210e9ad85ec41de9c22606d6f1d128662, commit=754e16fe4c904cf628aa5f3fe0883478d8aa97dd)
+## 2026-06-05 19:38 CST · Guardrails & 安全 · 6 期轮值(流式静默丢内容 / 热更新失效 / domain 幻觉)
+
+- LiteLLM **#26585** 修复 `ToolPermissionGuardrail` 流式 hook 在未产生 tool_calls 时整段普通文本被吞（async generator `return` 等价 `StopAsyncIteration`），修复后改走 `MockResponseIterator` 重新 yield
+- LiteLLM **#29655** 修复 `ToolPermissionGuardrail` 热更新失效：`update_in_memory_litellm_params` 不重建 `self.rules` 编译产物，导致 `PUT /guardrails/{id}` 改的规则直到 patch / DB 轮询 / 重启才生效（对齐 `PresidioGuardrail` 已有 override 模式）
+- LiteLLM **#29097** 修复 Vertex/Gemini `tool_choice` 在 `CachedContent` 复用路径上被静默丢弃，统一 bake 进 body
+- NeMo-Guardrails **#1988** 新增 `domain_hallucination` 输出护栏：DNS/HTTP/TLS/WHOIS/GitHub API 五级证据验证，223 样本 F1 60.18%（基线 34.10%），安全集严重误报 5.50%（vs 21.50%），可与既有 hallucination rail 并联做 defense-in-depth
+- NeMo-Guardrails **#1985** 状态机 hydration 引入 sharded resource mutex，强制 strict linearizable（配合 v0.22.0 IORails 并行执行）
+- guardrails-ai **v0.10.2**(2026-06-04)合并 7 PR：`#1493` PyPI trusted publishing 切到 Sigstore 信任链、`#1474/#1478/#1490` 制度化 `SECURITY_ADVISORY.md`、`#1467` Aikido 修 GitHub workflow 模板注入、`#1484` litellm pin 放宽到 `>=1.83.0`
+- LiteLLM **v1.88.0-rc.3** / **v1.87.1**(2026-06-04 ~ 06-05)：v1.87.1 是 stable 通道 5 个 staged fix 的回滚点（`#29631`），`#29645` 撤销过早 bump 到 1.87.2
+- 横切判断:流式 / 热更新 / 缓存复用 三类隐性路径已成 guardrail 失效的最密集来源；负路径(`return`/`break`)吞 yield 是 Python async generator 经典地雷；缓存命中时的策略等价性是 P0
+- 行动项:本周升 guardrails-ai v0.10.2 / LiteLLM Docker 接 cosign / 跑 tool_permission plain-text 回归 / 2 周内把 `guardrail.rules.applied_count` 与 DB `rules.json` 做一致性 metric / 本月做 cache × tool_choice 矩阵回归 / 季度评估 NeMo `domain_hallucination` 多 rail 投票
+- 报告:`reports/2026-06-05-1938-aigw-guardrails-streaming-trust.md`(11.5KB, content_sha=c49414928665bf907e19b979d8a893df3b3df97b, commit=381ddfdbba7b83b0985eed4991e1e974ab872055)
