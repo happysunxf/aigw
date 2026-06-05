@@ -405,3 +405,13 @@ AI Gateway 调研的更新日志。
 - 横切判断:流式 / 热更新 / 缓存复用 三类隐性路径已成 guardrail 失效的最密集来源；负路径(`return`/`break`)吞 yield 是 Python async generator 经典地雷；缓存命中时的策略等价性是 P0
 - 行动项:本周升 guardrails-ai v0.10.2 / LiteLLM Docker 接 cosign / 跑 tool_permission plain-text 回归 / 2 周内把 `guardrail.rules.applied_count` 与 DB `rules.json` 做一致性 metric / 本月做 cache × tool_choice 矩阵回归 / 季度评估 NeMo `domain_hallucination` 多 rail 投票
 - 报告:`reports/2026-06-05-1938-aigw-guardrails-streaming-trust.md`(11.5KB, content_sha=c49414928665bf907e19b979d8a893df3b3df97b, commit=381ddfdbba7b83b0985eed4991e1e974ab872055)
+
+## 2026-06-05 20:49 CST · 架构对比/性能基准 · 4 期轮值(真容量数据 + 代理进程资源 + 启动时延横评)
+
+- 抓取到 5 个目标产品最新 release(2026-06-04 ~ 06-05):**Envoy 1.38.1**(HPACK cookie-bomb 修复、router response body 缩 30-80 字节/req、LB rebuild coalescing 默认改 opt-in)、**Envoy Gateway 1.8.1**(今日发布,7 个 P0 CVE 必修,含 xDS 鉴权 bypass、Lua validator 沙箱读控制面文件、WASM HTTP 缓存缺读锁、BackendTLSPolicy section-name 优先于 wildcard、xDS 在 cert-manager 轮换后用脏证书、`egctl x status` 缺 CRD 不再 panic)、**Kong 3.9.2**(nginx 安全补丁 5 个 CVE、luarocks 3.12.2)、**kgateway 2.3.2 / 2.2.5**(`stripHostPortMode`、RequestRedirect 不再带默认端口、global rate limit 多 descriptor 不再合并为单 action、envoy 升 1.37.3/1.36.7)、**Higress 2.2.2**(`modelToHeader` 默认 `x-higress-llm-model-final`、Nginx rewrite 兼容 WASM 避 CVE-2026-42945、Bedrock Mantle Anthropic Messages API 直连)
+- 容量横评(2 vCPU / 4GB / keep-alive / 短请求):Envoy / Higress(Envoy 内核)60-120k RPS / P99 1.5-4ms / 80-180MB;Kong 20-40k / 5-15ms / 150-250MB;workerd 单 isolate 5-15k / 2-5ms / 30-60MB;Envoy Gateway / kgateway 6-10w(数据面) / 冷启 3-8s
+- LLM 场景代理 RTT 增量(直连 vs 网关):普通 Envoy +1-3ms、AI Gateway ext_proc +5-15ms、长上下文 re-parse +10-30ms;行业底线 1-3ms,多花 5-15ms 换统一限流/审计/重试/协议转换,业务侧价值远大于此
+- 三个常见误用澄清:"Kong 比 Envoy 慢 2-3 倍"实际 < 30%(关掉所有插件时)、workerd 内存优势按 isolate 不按进程、AI Gateway 开销应与"它替代掉的业务侧重复实现"对账
+- 横切判断:本批 release 全为安全硬化 + 小坑修复,无结构性性能变更;真拐点是 Envoy AI Gateway 0.7/0.8 切 in-proc ext_proc(理论 RPS 翻 2-3 倍);**别被 AI Gateway 多花 5ms 劝退**
+- 行动项:立即升 Envoy Gateway 1.8.1 / kgateway 2.3.2 / Kong 3.9.2 / Envoy 1.38.1;本月用 `llm-d/llm-d` v0.7.0 bench 套件重跑生产 5% 影子流量;K8s HPA 优先 Higress / Envoy Gateway(冷启 < 1s)、FaaS / 边缘优先 workerd(< 50ms);配置审计 `envoy.reloadable_features.coalesce_lb_rebuilds_on_batch_update` 在大批量 EDS 场景需重新打开
+- 报告:`reports/2026-06-05-2049-aigw-arch-benchmark-r4.md`(12.4KB, content_sha=b53fffe90f9d546eb36a847498457b0b118c3f91, commit=786e73a68342c1f2d8819e1c35ed5406a0197720)
