@@ -161,31 +161,86 @@ docs(aigw): flush 9 product deep-dives + checklist closure + r30 disposition (20
 - **首选**：`git add` + `git commit` + `git push origin main`
 - **兜底**：GitHub Contents API 直传（适用于 git push 仍卡住的极端情况）
 
-### 4.2 实际执行（动态填入）
+### 4.2 实际执行
 
-> 本节内容在 commit + push 执行后由 cron 任务回填
+**第 1 步：`git add`（11 个文件）** ✅
 
-参见 §5 的 `git log` 与 `git status` 终态。
+```
+A  product-baseten-20260605.md
+A  product-checklist-closure-20260605.md
+A  product-fireworks-ai-20260605.md
+A  product-langfuse-20260605.md
+A  product-martian-20260605.md
+A  product-modal-20260605.md
+A  product-replicate-20260605.md
+A  product-research-r30-20260605.md
+A  product-together-ai-20260605.md
+A  product-traceloop-20260605.md
+A  product-truefoundry-20260605.md
+```
+
+**第 2 步：`git commit`** ✅
+
+```
+[main 7d8efa3] docs(aigw): flush 9 product deep-dives + checklist closure + r30 disposition (2026-06-05 20:34)
+ 11 files changed, 14245 insertions(+)
+```
+
+**第 3 步：`git push origin main`** —— 第一次被 rejected
+
+```
+To https://github.com/happysunxf/aigw.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/happysunxf/aigw.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. ...
+```
+
+远端 main 已前进（`874c772..7b3a6e0`），说明用户在 18:14 之后手工或通过其他 cron 推送过新 commit。
+
+**第 4 步：`git pull --rebase origin main`** ✅
+
+```
+From https://github.com/happysunxf/aigw
+ * branch            main       -> FETCH_HEAD
+   874c772..7b3a6e0  main       -> origin/main
+Rebasing (1/1)Successfully rebased and updated refs/heads/main.
+```
+
+本地的 1 个新 commit 被干净地 rebase 到 `7b3a6e0` 之后，无冲突（cron 提交与用户/其他 cron 提交无内容重叠）。
+
+**第 5 步：`git push origin main`（重试）** ✅
+
+```
+To https://github.com/happysunxf/aigw.git
+   7b3a6e0..7d8efa3  main -> main
+```
+
+推送一次成功，未触发兜底 API 路径。
 
 ---
 
 ## 5. 推送后 git 终态
 
-> 本节在 commit + push 完成后回填
-
 ```
-$ git log --oneline -5
-<新提交>   docs(aigw): flush 9 product deep-dives + checklist closure + r30 disposition ...
-874c772   docs(aigw): deep dive on Arize Phoenix (OpenInference + OTel-native AI observability)
-1d5d2d9   feat: AI 网关技术深度长文 Word 版本(.docx · 55.7KB · 4 级标题 + 26 代码块 + 5 表格)
-27e0c89   docs: append CHANGELOG entry for AI 网关技术深度长文
-92ae9e3   feat: AI 网关技术深度长文(8 章 7 万字 + 52 个代码块 + 200 行可运行实战)
+$ git log --oneline -3
+7d8efa3 docs(aigw): flush 9 product deep-dives + checklist closure + r30 disposition (2026-06-05 20:34)
+7b3a6e0 docs(aigw): deep tech article - AI Gateway 2025-2026 深度技术剖析 (10 章 / 35KB)
+3aaaa4b changelog: 2026-06-05 20:11 aigw arch-benchmark r3
 
 $ git status
 On branch main
 Your branch is up to date with 'origin/main'.
 nothing to commit, working tree clean
 ```
+
+**最终 stat**：
+
+- 1 个新 commit：`7d8efa3`
+- 11 个文件变更 / +14,245 行
+- 工作区 clean，远端 `origin/main` 同步
+
+> **诚实说明**：本节（§4.2 与 §5）的"实际执行细节"是在 commit `7d8efa3` push **之后**回填的。也就是说，commit `7d8efa3` 的实际内容是"11 份新文件 + 1 份原版 disposition 报告（§4 §5 占位）"。回填动作是 cron 任务**在本会话内、在 push 成功之后**直接对 disposition 报告做的 edit，**未**再触发新的 commit（避免无意义地改写 `7d8efa3` 的 hash）。从 `git log` 与远端看，`7d8efa3` 就是本次触发的最终落地点。
 
 ---
 
