@@ -362,3 +362,12 @@ AI Gateway 调研的更新日志。
 - 关键 takeaway：#1784/2061/2085 把 Agent gateway SLO dashboard 的最小可用数据集凑齐；#1842 ExtMCP 让 Agent Gateway 区别于通用 L7 API Gateway（per-tool policy / per-tool cost 从应用层提到网关层）；#2088 ID-JAG / #2037 AWS AssumeRole / #28356 MCP OAuth passthrough / #29586 A2A M2M 三类 identity 协议在 6 月这一波全部收口，HIPAA / SOC 2 / EU AI Act 合规通路被打通。
 - 内容_sha: `16886390e8be93c03a3c742eb7b83a2e7407ea51`,commit_sha: `8a0e8ded0136e10e972b31a2c69e06022b5bbdf4`
 - 推送时间: 2026-06-05 16:49 CST
+## 2026-06-05 18:19 CST · Guardrails & 安全 · 4 期轮值
+
+- NeMo Guardrails **v0.22.0**（2026-05-22）发布，IORails 引擎并行执行 content/topic/jailbreak rails，默认开启匿名 usage reporting（opt-out）
+- 同期 commit：IORails Telemetry content capture #1972、Guardrails 公开 API 重构 #1933、HuggingFace 轻量分类器 #1853、SSE 流式正则检测 #1932/#1937
+- LiteLLM 8 条 guardrail 相关 PR：#29511 sensitive data → on-prem 模型 sticky 路由（**`SensitiveDataRouteException`** 新异常）、#29339 Vigil Guard 原生 provider、#29263 OTel guardrail 跨 span、#29655 工具权限规则热更新、#28418 内容过滤统一 HTTP 400
+- Portkey 4 条 guardrail PR：#1669 tool-payload-firewall、#1671 Lakera Guard、#1670 Veto（EU 托管）、#1661 Akto/Zscaler 目录修复
+- Envoy AI Gateway #2132 日志脱敏精细化，**不再误伤工具 schema 与 response_format**
+- 横切趋势：会话级 sticky 策略路由 / 工具调用面成主战场 / guardrail 真正纳入 OTel 审计 / 多 provider 拼装成网关原语
+- 报告：`reports/2026-06-05-1819-aigw-guardrails-roundup.md`（11.5KB，content_sha=44996661c8fe59ab35bcfb5e2d2680698aa33228, commit=b89d15209b3d7cff916c17bcc3c0c04217771288）
