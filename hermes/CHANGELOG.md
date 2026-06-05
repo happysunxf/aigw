@@ -265,3 +265,22 @@ AI Gateway 调研的更新日志。
 - 关键信号:① LiteLLM PR #28626 把 `data_residency` 变成成本乘数(EU/US uplift),② PR #28569/#28572 补齐 Vertex/Bedrock Claude 1h 缓存写价(少算 ~60% 修复),③ PR #29358 + cherry-picks #29361/#29363 修 `ResetBudgetJob` lost-update race(跨 1.84/1.86/1.87 三条 active line 同时 backport),④ PR #28476 修 retry 链下成本被钉在 0,⑤ PR #29273 修运行时 `add_deployment` 不进 budget 限额,⑥ vLLM 0.22.0 暴露统一 *proposer backend* ——「speculative decode 网关化」是下半年值得追踪的路由-成本交叉方向,⑦ Portkey 2026-05-19 安全加固集群 + 2026-02-19 v2 公告,5 个月 release-tag 空窗(转入 v2 内部 review)。
 - 内容_sha: `59dc272b8934ff8f1a54ea14befdc91282e7a5cc`,commit_sha: `2d4b251c528638f583fd9026bd08c429e04abaef`
 - 推送时间: 2026-06-05 10:31 CST
+
+
+## 2026-06-05 12:38 CST — 第 18 次（hour%7=5，可观测 & 监控 · 行业整合视角）
+
+- 主题：**OTel GenAI 归一化落地 + LLM observability 行业整合潮**
+- 角度切片：与 05:13（OTel semconv 跨协议对齐）+ 05:45（Token 治理 / eBPF / Server 策略）两次技术视角互补，本轮走「**产业格局 + 工程化落点**」视角
+- 报告：`hermes/reports/2026-06-05-1238-aigw-observability-industry-reshuffle.md`（12.0KB）
+- 关键信号：
+  ① **OTel Collector Contrib v0.153.0 (5-26) 正式落地 `processor/gen_ai_normalizer`** —— 把 OpenInference (Phoenix/Arize) 与 OpenLLMetry (Traceloop) 两套历史事实标准的属性归一化到 OTel 官方 GenAI semantic conventions，「统一语义」从草案进工程
+  ② **OpenInference core v0.1.53 (6-02) 原生支持 OTel GenAI `plan` operation** —— agent 工具/步骤规划进入官方 semconv
+  ③ **OpenInference openai-agents v1.6.0 (6-03) Realtime audio tracing** —— WS 双向音频流首次进入 OpenInference 矩阵
+  ④ **Arize Phoenix v17.0.0/v17.1.0/v17.2.0 三连发 (6-02~6-03)** —— PXI 内嵌助手 + 沙箱白名单 + Server 端 trace recording policy 政策收口
+  ⑤ **OpenLIT 1.21.0 (5-27) `offline evals` 取代 LLM-based evals** —— 反「observability 工具二次烧 token」；同版 telemetry trace detail 翻新 + 「Close the loop」AI 分析
+  ⑥ **OpenLIT otel-gpu-collector 0.0.5/0.0.6 (6-02/6-03)** + `agent threat event helper` —— GPU 利用率 + agent 威胁事件（prompt injection / jailbreak）作为新 OTLP signal
+  ⑦ **行业整合**：**Traceloop 2026-03-02 公告加入 ServiceNow**（OpenLLMetry + 商业平台并入 ServiceNow AI Control Tower）；**Helicone 2026-03-03 公告加入 Mintlify**（进入 maintenance 模式）—— 24 小时内两家代表性 LLM observability 公司被吃，市场从工具碎片转入平台整合
+  ⑧ **Langfuse v3.178.0 (6-02) `auditLogs:read` 强制** + v4 仪表盘 import/export —— 审计能力与可移植性同时增强
+  ⑨ **OpenTelemetry Collector v0.153.0 同版本其他**：tail_sampling rate_limiting 改令牌桶 + `burst_capacity`；Prometheus receiver `event_driven_scraping`
+- 内容_sha: `770f2a007aa848ddc2ac67d840991c1766c4bf0c`，commit_sha: `b0c64b06f09f4de9f712794fe1051e897dbaf7f2`
+- 推送时间: 2026-06-05 12:38 CST
