@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-06-05 07:50 CST · 单产品发版追踪（cron 0/7 轮）— Envoy AI Gateway v0.6.0 + 30 天 main delta
+
+- [2026-06-05-0750-aigw-envoy-release.md](reports/2026-06-05-0750-aigw-envoy-release.md)
+  - 主题：**单产品发版追踪**（hour%7=0）— Envoy AI Gateway，aigw-*-release 系列第 3 篇（前两篇：LiteLLM 0034、Portkey 0716）
+  - 抓取时间：2026-06-05 07:50 CST
+  - 范围：v0.6.0（2026-05-05）→ main 分支截至 2026-06-04（30 天 ~30 个功能 PR + 若干 fix）
+  - 重点：v0.6.0 **首个 production-ready API 表面**——5 个核心 CRD（AIGatewayRoute / AIServiceBackend / BackendSecurityPolicy / GatewayConfig / MCPRoute）升 `v1beta1`
+  - 重点：跨 provider 翻译——**Anthropic `/v1/messages` 端点可暴露在任意 OpenAI 后端前面**、**统一 `reasoning_effort` 跨 Anthropic/OpenAI/Gemini**、Adaptive thinking for `claude-opus-4.6`
+  - 重点：MCP Gateway——per-backend header forwarding with rename、JWT claim forwarding、`MCPToolFilter.exclude` / `excludeRegex`、tool name 进 access log（`mcp_tool_name`）、per-backend capability tracking
+  - 重点：GKE Workload Identity via Application Default Credentials（落地 GKE 可摘掉静态 SA JSON secret）
+  - 重点：Observability——`aigw` 自动 OTLP access logging、`agent-session-id` → `session.id` 头映射（Metrics 永不默认带 session id）、`LLMRequestCostType.ReasoningToken`、response model metadata、OTEL 属性计数上限移除
+  - 重点：Operations——Webhook 端口可配 + 宿主网络、ExtProc 后挂 Lua filter、`GatewayConfig.spec.globalLLMRequestCosts` 全局默认 + route 级 override
+  - Breaking：(1) `AIGatewayRoute.spec.filterConfig` 移除 → 必须搬 `GatewayConfig`；(2) `VersionedAPISchema.version` 不再当 endpoint 前缀 → 用 `prefix` 字段
+  - 30 天 main 增量——**QuotaPolicy 从 API 占位走向运行时落地**（PR #1869，2026-06-04）：首次把"按 token 消耗作为 rate limit 维度"真正跑通（Redis counter + HitsAddend）
+  - 30 天 main 增量——**Azure OpenAI Responses API**（PR #2122，作者披露由 gpt-5.5 协助）；音频端点（PR #2023：`/v1/audio/transcriptions` + `/translations`）；多模态 `audio_url` / `video_url`（PR #2136）
+  - 30 天 main 增量——**Anthropic 路径推理 + 图像增强**（PR #2099：thinking content / image block 不再被静默丢弃；PR #2103：新增 `anthropic_awsbedrock.go` 支持打到 Bedrock 上任何模型；PR #2108：`prefix` 字段对 Anthropic 后端生效）
+  - 30 天 main 增量——**MCP 治理两条设计提案**（v0.7 候选）：PR #2144 `MCPBackend CRD`（size/XXL，把 inline 配置抽成独立 CRD）；PR #2052 OAuth 2.0 Token Exchange (RFC 8693) as Upstream Auth for MCP Backends（企业 agent → SaaS MCP 场景，per-user attribution）
+  - 30 天 main 增量——**Hostname 路由**（PR #2160：AIGatewayRoute 之前是 cluster 级 CR，现在支持 host-based 模型分组）；**rules 上限 15**（PR #2123：kubebuilder `MaxItems` 128→15，根因 Gateway API 限 `maxItems: 16` + 1 条 catch-all，否则 API server 静默拒绝）
+  - 杂项：Claude Opus 4.7 reasoning（#2089）、body redaction 调整（#2132）、Bedrock nil Output guard（#2157）、SSE parser（#2155）、AWSAnthropic beta header（#2148）、Gemini 3.1 flash lite（#2187）
+  - 依赖：Go 1.26.2 / Envoy Gateway v1.7.0 / Envoy v1.37 / Gateway API v1.4.1 / Gateway API Inference Extension v1.0.2 / MCP Go SDK 1.4.1
+  - 仓库基本面：1,717 stars / 269 forks / 154 open issues，CNCF + Apache-2.0
+  - 状态：本地 → 推送成功（content_sha=452784b21a3cdfa7faf748953fd31287f43601ad, commit=0219c10e78fda444bee8779f35696e03c429e2c5）
+
 ## 2026-06-05 06:32 CST · 架构对比 / 性能基准（cron 6/13 轮）
 
 - [2026-06-05-0632-aigw-arch-benchmark.md](reports/2026-06-05-0632-aigw-arch-benchmark.md)
