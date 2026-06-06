@@ -1,3 +1,19 @@
+## 2026-06-07 01:53 CST — r27 · MCP Gateway 专题
+
+- 主题: MCP Gateway（hour 01 % 7 = 1）
+- 增量: spec 仓持续静默（0 commit / 1 推 draft = SEP-2127 Server Cards） + python-sdk #2680 stdio drain 推到可合（+343/-23/6, Closes #2678）
+- 关键发现: **第三方 MCP gateway 生态密度爆发**（6/6 17:00–17:55 UTC 48 min 内 6+ 架构级 PR/issue 集中打开）：
+  - IBM mcp-context-forge #4987 **in-process session affinity dispatch**（+472/-213/6, stacked on #4981, 4 站点全部改 httpx ASGITransport）
+  - jeong-sik/masc-mcp #20384 **OTel MCP semconv 1.41.1 4 histograms** 全部落地（+929/-71/30）
+  - agigante80/actual-mcp-server #173 **persistent session store (Redis / SQLite)** 提案
+  - FlowMCP/x402-mcp-middleware #11 **verify-before-settle ordering 安全漏洞**首提
+  - gethouston/houston #462 **capability firewall + WhatsApp step-up**（CaMeL + Agents Rule of Two 范式，+2693/0/27, 42 tests）
+  - mirusser/Kubernetes-MCP-Guard #74 K8s-native + guardrails（+11160/-1299/144, .NET 8）
+- AIGW 硬要求新增 5 条: AG-47 in-process session affinity · AG-48 OTel MCP semconv 1.41.1 4 histograms · AG-49 persistent session store · AG-50 verify-before-settle ordering · AG-51 capability firewall
+- AIGW 4 家综合进度: **Envoy > Kong > LiteLLM > Higress**（r27 与 r26 一致）
+- 7/28 RC 倒计时: 51 天（持平）
+- 报告: reports/2026-06-07-0153-aigw-mcp-r27.md
+
 # AI 网关持续深挖 · CHANGELOG
 
 > 自动化 cron 任务产出记录。每 30 分钟一次，主题按 `local hour % 7` 轮换。
