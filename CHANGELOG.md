@@ -1,3 +1,9 @@
+## 2026-06-06 09:25 CST · agent-gateway r20
+- 主题：Agent Gateway 专题（第 20 期，09 时段）· multi-agent 编排 / trace 调试 / 成本归因
+- 数据来源：agentgateway/agentgateway（v1.3.0-alpha.1 + 14 个新合入 PR）、envoyproxy/ai-gateway v0.6.0、kubernetes-sigs/GAIE v1.5.0、langgraph 1.2.4、crewAI 1.14.6/1.14.7a2
+- 重点：envoy-ai-gateway 0.6 把核心 CRD 升 v1beta1，新增 agent-session-id → session.id 默认映射、LLMRequestCostType.ReasoningToken、Response.model 元数据；agentgateway 1.3-alpha 加 dtrace body snapshot、cache_creation_input_tokens 修复、agctl CLI 重构、AGBE a2a first-class backend；GAIE 1.5 推 EPP/BBR 插件框架
+- 报告：reports/2026-06-06-0925-aigw-agent-gateway-r20.md (commit 49f9df4)
+
 # AI 网关持续深挖 · CHANGELOG
 
 > 自动化 cron 任务产出记录。每 30 分钟一次，主题按 `local hour % 7` 轮换。
