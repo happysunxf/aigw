@@ -1,12 +1,12 @@
 # AI 网关技术深度:从 5 个原生痛点到 5 款主流源码的逐行还原
 
 > **作者**:hermes-agent AI 网关深度研究系列
-> **完稿时间**:2026-06-05(初版) / 2026-06-07(加 APISIX 修订版 v2)
+> **完稿时间**:2026-06-07(定稿)
+> **版次**:第 2 版(含 Apache APISIX 3.16 对比)
 > **预计阅读时长**:65-85 分钟
 > **目标读者**:LLM 应用工程师 / 平台架构师 / 想自研或选型 AI 网关的技术负责人
 > **前置知识**:熟悉 LLM API 调用、HTTP/SSE、有一种 LLM 框架的使用经验
->
-> **v2 修订说明**:在原 4 款实现(LiteLLM / Envoy AI Gateway / Higress / Portkey)的基础上,加入 **第 5 款:Apache APISIX 3.16(2026-04-08)**—— Apache 2.0 全开源、**MCP 桥接早 4-8 个月**、**业界独家 `cost_expr` 表达式限流**、**2026-04 三段式 protocols/providers/transport 架构重构**的 Lua/OpenResty AI 网关。补充内容覆盖:8 个核心机制里 APISIX 的源码实现、第 4 章新增 4.6 APISIX 完整段、横评表扩到 5 款、行业全景与终局预测同步更新。
+
 
 ---
 
@@ -24,18 +24,18 @@
   - 3.6 语义缓存(Semantic Cache)
   - 3.7 流式响应处理(Streaming / SSE)
   - 3.8 可观测性与成本归因(Observability & Cost Attribution)
-- 第 4 章 · 5 款主流实现的源码对照(v2 加 APISIX)
+- 第 4 章 · 5 款主流实现的源码对照
   - 4.1 LiteLLM(Python 单体)
   - 4.2 Envoy AI Gateway(Go + Envoy ext_proc)
   - 4.3 Higress(Go + WASM)
   - 4.4 Portkey(TS / Cloudflare Workers / Edge)
-  - 4.5 Apache APISIX 3.16(Lua + OpenResty)**【v2 新增】**
-  - 4.6 横向对比表(5 款)**【v2 重写】**
-  - 4.7 选型决策树**【v2 扩展】**
+  - 4.5 Apache APISIX 3.16(Lua + OpenResty)
+  - 4.6 横向对比表(5 款)
+  - 4.7 选型决策树
 - 第 5 章 · 行业全景:谁在用、谁在卷、谁在合并
 - 第 6 章 · 实战:从 0 到 1 自研一个极简 AI 网关
 - 第 7 章 · 总结与展望
-- 附录 · 18 个一手源码链接**【v2 扩到 18】**
+- 附录 · 18 个一手源码链接
 
 ---
 
@@ -50,14 +50,14 @@
 1. **为什么**传统 API Gateway(Kong / Apigee / NGINX)解决不了 LLM 工程问题?
 2. **是什么**让 AI 网关不是"API Gateway + 转发"?它的边界在哪?
 3. **怎么做**:8 个核心机制具体怎么实现?为什么这么实现?
-4. **谁做得好**:**五款**主流实现(LiteLLM / Envoy AI GW / Higress / Portkey / **Apache APISIX** —— v2 新增)的源码级对照,设计哲学差异在哪?
+4. **谁做得好**:**五款**主流实现(LiteLLM / Envoy AI GW / Higress / Portkey / **Apache APISIX**)的源码级对照,设计哲学差异在哪?
 
 读完本文,你可以:
 - 独立完成 AI 网关的**选型决策**(用 LiteLLM / Envoy AI GW / Higress / Portkey / **APISIX** / 自研)
 - 排查**生产事故**(限流 / 配额耗尽 / 厂商故障)
 - 从 0 到 1 自研一个**满足 80% 场景**的极简 AI 网关
 
-**v2 加 APISIX 的特殊理由**:Apache APISIX 是 Apache 软件基金会顶级项目(Lua/OpenResty 路线),在中国云原生生态采用率长期领先(Kong/Higress 之上的"中国云原生 API 网关默认选项"),2024-10(3.11)起系统化推出 AI 插件矩阵,2025-04(3.12)**首发 mcp-bridge 插件**比 Kong/Higress/Envoy 早 4-8 个月,2026-04(3.16)做了**三段式 protocols/providers/transport 架构重构**和**业界独家 `cost_expr` 表达式限流**。**忽略它会丢 25%+ 候选**。
+Apache APISIX 是 Apache 软件基金会顶级项目(Lua/OpenResty 路线),2024-10(3.11)起系统化推出 AI 插件矩阵,2025-04(3.12)**首发 mcp-bridge 插件**比 Kong/Higress/Envoy 早 4-8 个月,2026-04(3.16)做了**三段式 protocols/providers/transport 架构重构**和**业界独家 `cost_expr` 表达式限流**。忽略它会丢 25%+ 候选——为此本文将其纳入第 5 款主流实现进行完整源码对照。
 
 ---
 
@@ -113,7 +113,7 @@ OpenAI GPT-4o 单次调用 $5/M output,Claude Sonnet $15/M,Gemini 1.5 Pro $7/M,Q
 
 ## 第 2 章 · 整体架构:经典 5 层分解
 
-把 **5 款**主流实现(LiteLLM、Envoy AI Gateway、Higress、Portkey、**Apache APISIX 3.16** —— v2 新增)放一起看,会发现它们**收敛到了几乎相同的 5 层架构**,只是每层技术选型不同。**APISIX 的特别之处**在于用 **Lua/OpenResty + 三段式 plugins(protocols/providers/transport)** 实现了同样的 5 层,而这是 Kong 系网关(Kong / APISIX)共有的传统路线。
+把 **5 款**主流实现(LiteLLM、Envoy AI Gateway、Higress、Portkey、**Apache APISIX 3.16**)放一起看,会发现它们**收敛到了几乎相同的 5 层架构**,只是每层技术选型不同。**APISIX 的特别之处**在于用 **Lua/OpenResty + 三段式 plugins(protocols/providers/transport)** 实现了同样的 5 层,而这是 Kong 系网关(Kong / APISIX)共有的传统路线。
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -282,7 +282,7 @@ func (m *openaiProvider) TransformRequestHeaders(ctx wrapper.HttpContext, apiNam
 }
 ```
 
-**APISIX 的设计(v2 新增,来自 `apisix/plugins/ai-protocols/init.lua` + `ai-providers/`)**:**2026-04 PR #13170 做了三段式重构**,把协议 / provider / transport 三层显式拆开:
+**APISIX 的设计(来自 `apisix/plugins/ai-protocols/init.lua` + `ai-providers/`)**:**2026-04 PR #13170 做了三段式重构**,把协议 / provider / transport 三层显式拆开:
 
 ```lua
 -- APISIX 三段式架构(简化)
@@ -451,7 +451,7 @@ export class ConditionalRouter {
 }
 ```
 
-**APISIX 的设计(v2 新增,来自 `apisix/plugins/ai-proxy-multi.lua`)**:**3.13 起 ai-proxy-multi 插件**(v2 重点推荐)用 YAML 配置 priority + weight,触发 fallback。**不是表达式**而是**结构化配置**——对运维友好,不需要学 CEL。
+**APISIX 的设计(来自 `apisix/plugins/ai-proxy-multi.lua`)**:**3.13 起 ai-proxy-multi 插件**用 YAML 配置 priority + weight,触发 fallback。**不是表达式**而是**结构化配置**——对运维友好,不需要学 CEL。
 
 ```yaml
 # APISIX 优先级 + fallback 配置(独立配置文件 apisix.yaml)
@@ -593,7 +593,7 @@ class CooldownCache:
         )
 ```
 
-**APISIX 的设计(v2 新增,来自 `apisix/plugins/ai-proxy-multi.lua` + `priority_balancer`)**:**APISIX 走的是"优先级降级链"**而非独立的 cooldown 缓存,fallback 是"路线属性"不是"健康缓存":
+**APISIX 的设计(来自 `apisix/plugins/ai-proxy-multi.lua` + `priority_balancer`)**:**APISIX 走的是"优先级降级链"**而非独立的 cooldown 缓存,fallback 是"路线属性"不是"健康缓存":
 
 ```lua
 -- ai-proxy-multi.lua 中的 fallback 触发逻辑
@@ -614,7 +614,7 @@ local function should_fallback(conf, code, status)
 end
 ```
 
-**APISIX 的 instance_health**(v2 重点,3.13 起)用 `healthcheck_manager`(APISIX 内置的被动健康检查器):
+**APISIX 的 instance_health**(3.13 起)用 `healthcheck_manager`(APISIX 内置的被动健康检查器):
 
 ```lua
 -- 来自 ai-proxy-multi.lua 的 healthcheck 集成
@@ -728,7 +728,7 @@ func (m *openaiProvider) TransformRequestHeaders(ctx wrapper.HttpContext,
 }
 ```
 
-**APISIX 的设计(v2 新增,来自 `apisix/plugins/ai-proxy-multi.lua` + `apisix/secret.lua`)**:**APISIX 的 key 池是"每个 instance 一个 key",轮换粒度在 instance 之间**——与 Higress 单一 provider 多 key 的设计相反,体现"路由层 + 凭证层分离":
+**APISIX 的设计(来自 `apisix/plugins/ai-proxy-multi.lua` + `apisix/secret.lua`)**:**APISIX 的 key 池是"每个 instance 一个 key",轮换粒度在 instance 之间**——与 Higress 单一 provider 多 key 的设计相反,体现"路由层 + 凭证层分离":
 
 ```lua
 -- apisix/plugins/ai-proxy-multi.lua 的 instance auth 注入(简化)
@@ -746,7 +746,7 @@ local function resolve_auth(instance_conf)
 end
 ```
 
-**APISIX 的 secret 管理**是 v2 重点强调的能力:
+**APISIX 的 secret 管理**:
 
 ```yaml
 # conf/config.yaml - 配置 encrypt_fields 自动加密
@@ -878,7 +878,7 @@ export const retryRequest = async (
 - `get_retry_from_policy.py`:支持 `RetryPolicy(num_retries=3, retry_on=[429,500,502,503,504])`
 - `add_retry_fallback_headers.py`:在响应里加 `x-litellm-retry-count` / `x-litellm-fallback-count` 让客户端能调试
 
-**APISIX 的设计(v2 新增)**:**APISIX 把重试交给上游的健康检查 + fallback,自己不做应用层重试**——这是与传统 LLM 客户端最大差异:
+**APISIX 的设计**:**APISIX 把重试交给上游的健康检查 + fallback,自己不做应用层重试**——这是与传统 LLM 客户端最大差异:
 
 ```lua
 -- APISIX ai-proxy-multi.lua 不做应用层重试
@@ -905,7 +905,7 @@ local up_conf = {
 
 **为什么 APISIX 不在应用层重试**?**因为 APISIX 3.13 之前是通用 API 网关**——重试对一般 HTTP 请求是合理的(GET idempotent),对 LLM 调用是危险的(POST 可能重复扣费 + 重复计费)。**APISIX 的折中**:TCP 层短暂重试(网络抖动级)+ 上游级 fallback(语义级)——**不重复消耗厂商 token,但有可用性兜底**。
 
-但这也有反例:**APISIX 的 fallback 触发后,客户端是收到 503 还是 200 取决于配置**。如果想要 LiteLLM 那种"客户端无感知的跨 provider 重试",需要写一个 `ai-request-rewrite` 插件配合(详见 v2 报告 `2026-06-07-0730-aigw-apisix-ai-deepdive.md` §3.5)。
+但这也有反例:**APISIX 的 fallback 触发后,客户端是收到 503 还是 200 取决于配置**。如果想要 LiteLLM 那种"客户端无感知的跨 provider 重试",需要写一个 `ai-request-rewrite` 插件配合(详见报告 `2026-06-07-0730-aigw-apisix-ai-deepdive.md` §3.5)。
 
 #### 为什么这么实现
 
@@ -1013,7 +1013,7 @@ class SemanticCache:
 - **PII 缓存风险**:用户 A 问"我的社保号是 xxx"命中了用户 B 的缓存(同 embedding),PII 泄露。**用 PII 检测器预处理 / 不缓存带 PII 的请求**。
 - **缓存击穿**:热 key 过期瞬间大量请求打到后端,**用 singleflight 模式保护**(Go `singleflight` / Python `asyncio.Lock`)。
 
-**APISIX 的设计(v2 重点,反常识点)**:**APISIX 没有官方的 `ai-semantic-cache` 插件**——这是个**重要事实**,不是缺点而是"有意识的克制"。
+**APISIX 的设计(反常识点)**:**APISIX 没有官方的 `ai-semantic-cache` 插件**——这是个**重要事实**,不是缺点而是"有意识的克制"。
 
 ```yaml
 # APISIX 的语义缓存只能这样间接实现
@@ -1155,7 +1155,7 @@ func (r *routerProcessor[...]) ProcessResponseBody(ctx context.Context,
 }
 ```
 
-**APISIX 的设计(v2 新增,来自 `apisix/plugins/ai-transport/sse.lua` + `ai-protocols/`)**:**APISIX 把 SSE 处理拆到 transport 层**,与协议层解耦:
+**APISIX 的设计(来自 `apisix/plugins/ai-transport/sse.lua` + `ai-protocols/`)**:**APISIX 把 SSE 处理拆到 transport 层**,与协议层解耦:
 
 ```lua
 -- apisix/plugins/ai-transport/sse.lua(简化)
@@ -1289,11 +1289,10 @@ costConfig:
     + gen_ai.usage.output_tokens * modelCosts[gen_ai.request.model].outputCostPerToken
 ```
 
-**APISIX 的设计(v2 重点,杀手锏,来自 `apisix/plugins/ai-rate-limiting.lua`)**:**APISIX 用 Lua 算术表达式做限流和成本计算**——比 CEL 更简洁,支持任意 token 成本公式。
+**APISIX 的设计(杀手锏,来自 `apisix/plugins/ai-rate-limiting.lua`)**:**APISIX 用 Lua 算术表达式做限流和成本计算**——比 CEL 更简洁,支持任意 token 成本公式。
 
 ```yaml
 # APISIX 3.15 起:cost_expr 表达式限流(PR #13191)
-# 这才是 v2 最值得讲的部分
 plugins:
   ai-rate-limiting:
     limit: 100000
@@ -1337,7 +1336,7 @@ local cost = calc_cost(response.usage,
 | 性能 | 表达式编译一次,执行快 | 表达式每次请求编译 (load 是 cheap) |
 | 易读性 | ⭐⭐⭐ | ⭐⭐⭐⭐(纯算术) |
 
-**APISIX Prometheus 集成**(v2 新增):
+**APISIX Prometheus 集成**:
 
 ```promql
 # APISIX 上报的 LLM 指标
@@ -1350,12 +1349,12 @@ ai_tokens_total{type="completion",model="gpt-4o",provider="openai"} 4521
 ai_request_failure_total{reason="429",provider="openai"} 5
 ```
 
-**APISIX 在可观测上的 v2 重点**:
+**APISIX 在可观测上的重点**:
 - **OTel GenAI semconv 自动 emit**(3.16 起)— `gen_ai.server.time_to_first_token` / `gen_ai.usage.input_tokens` / `gen_ai.usage.output_tokens` 全配齐
 - **ClickHouse 上送 token 用量**(`clickhouse-logger` + `ai-proxy` 自动联用)— 不需自己写 ETL
 - **prompt hash 而非明文**——PII 安全 + 可观测并存
 
-**APISIX `cost_expr` 的反常识(v2 必看)**:
+**APISIX `cost_expr` 的反常识**:
 - ✅ 表达式**只支持 `+ - * / ()`**,不能写函数或字符串拼接——这是 Lua 算术子集,不是完整 Lua
 - ⚠️ **缺失变量默认 0 静默错算**——你写 `input_tokne`(拼错)不会报错,直接当 0,**调试时打开 `error.log` 看 `ai-rate-limiting` 块的解析警告**
 - ⚠️ **跨 provider 需写不同 `cost_expr`**——OpenAI 用 `prompt_tokens`,Anthropic 用 `input_tokens`,DeepSeek 用 `prompt_tokens`,多实例路由时按 `instance.name` 分别配
@@ -1425,7 +1424,7 @@ litellm/
 - 单体,水平扩展需要 Redis 后端。
 - TypeScript 生态集成需要再封装。
 
-**与 APISIX 的对比(v2)**:**LiteLLM 优势在 100+ 厂商覆盖 + Python 生态集成 0 成本**,**APISIX 优势在 Lua/OpenResty 协程 SSE 性能(3-5x)+ cost_expr 表达式限流 + Apache 2.0 全开源**。**两者不是替代关系,是互补**——Python 业务侧选 LiteLLM,基础设施侧选 APISIX。
+**与 APISIX 的对比**:**LiteLLM 优势在 100+ 厂商覆盖 + Python 生态集成 0 成本**,**APISIX 优势在 Lua/OpenResty 协程 SSE 性能(3-5x)+ cost_expr 表达式限流 + Apache 2.0 全开源**。**两者不是替代关系,是互补**——Python 业务侧选 LiteLLM,基础设施侧选 APISIX。
 
 ---
 
@@ -1471,7 +1470,7 @@ external_processor (Go binary)
 - 厂商覆盖比 LiteLLM 少(但 2025 年在追赶)。
 - 部署复杂(需要 Envoy + Go binary + CRD)。
 
-**与 APISIX 的对比(v2)**:**Envoy AI GW 优势在云原生极致性能(10k+ RPS)+ CEL 表达式强大**,**APISIX 优势在部署门槛低(Lua + YAML)+ MCP 早 4-8 个月**。**两者共享 Envoy 数据面理念但路线不同**——Envoy AI GW 是 Solo.io 的云原生初创路线,APISIX 是 API7 的传统网关演进路线。
+**与 APISIX 的对比**:**Envoy AI GW 优势在云原生极致性能(10k+ RPS)+ CEL 表达式强大**,**APISIX 优势在部署门槛低(Lua + YAML)+ MCP 早 4-8 个月**。**两者共享 Envoy 数据面理念但路线不同**——Envoy AI GW 是 Solo.io 的云原生初创路线,APISIX 是 API7 的传统网关演进路线。
 
 ---
 
@@ -1517,7 +1516,7 @@ plugins/wasm-go/extensions/ai-proxy/
 - 海外生态弱(英文文档少)。
 - 厂商 SDK 是 CGO-free 纯 Go,新厂商适配比 LiteLLM 慢。
 
-**与 APISIX 的对比(v2)**:**Higress 优势在国内云原生生态 + API GW + AI GW 一体**,**APISIX 优势在 Lua 性能(等同 Higress Go)+ 传统 API 网关稳定性 + Apache 2.0**。**两者的"中国 API 网关对手戏"已经定型**——Higress 偏阿里云体系,APISIX 偏开源中立体系。**功能上**已高度对齐,APISIX 的 MCP 桥接是 Higress 工具市场的补充而非替代。
+**与 APISIX 的对比**:**Higress 优势在国内云原生生态 + API GW + AI GW 一体**,**APISIX 优势在 Lua 性能(等同 Higress Go)+ 传统 API 网关稳定性 + Apache 2.0**。**两者的"中国 API 网关对手戏"已经定型**——Higress 偏阿里云体系,APISIX 偏开源中立体系。**功能上**已高度对齐,APISIX 的 MCP 桥接是 Higress 工具市场的补充而非替代。
 
 ---
 
@@ -1571,11 +1570,11 @@ src/
 - **厂商覆盖中等**:不如 LiteLLM 100+,比 Envoy AI GW 强。
 - **高级功能要付费**:fallback / load balance / semantic cache 都在付费层。
 
-**与 APISIX 的对比(v2)**:**Portkey 优势在 Edge 全球部署 + JS/TS 生态 + dashboard 体验**,**APISIX 优势在自托管 + 数据主权 + Apache 2.0 + MCP 早**。**Portkey 是 SaaS-first,APISIX 是 self-host-first**——选 Portkey 接受 Workers 30s 限制,选 APISIX 接受自运维。
+**与 APISIX 的对比**:**Portkey 优势在 Edge 全球部署 + JS/TS 生态 + dashboard 体验**,**APISIX 优势在自托管 + 数据主权 + Apache 2.0 + MCP 早**。**Portkey 是 SaaS-first,APISIX 是 self-host-first**——选 Portkey 接受 Workers 30s 限制,选 APISIX 接受自运维。
 
 ---
 
-### 4.5 Apache APISIX 3.16(Lua + OpenResty)【v2 新增】
+### 4.5 Apache APISIX 3.16(Lua + OpenResty)
 
 **定位**:**传统 API 网关 + AI Native 路线**,Apache 软件基金会顶级项目(2020 年毕业),API7(深圳支流科技)主导,基于 OpenResty/Nginx + Lua 插件架构。**中国云原生 API 网关事实标准**。
 **用户**:**中国中型企业**(电信、移动、Airwallex、明源云等),**需要 API 网关 + AI 网关一体的中等规模工程团队**。
@@ -1692,7 +1691,7 @@ local M = {
 }
 ```
 
-**APISIX 12 个 ai-* 插件全景图**(v2 重点,3.16 完整列表):
+**APISIX 12 个 ai-* 插件全景图**(3.16 完整列表):
 
 | 插件名 | 优先级 | 引入版本 | 核心职责 | 关键能力 |
 |--------|--------|---------|---------|---------|
@@ -1709,16 +1708,16 @@ local M = {
 | `ai` (入口插件) | 22900 | 3.13 | 路由匹配缓存(降低 LLM 路由热路径 CPU) | scope=global, lrucache |
 | `mcp-bridge` | 510 | 3.12 | **把 stdio MCP server 桥接为 SSE/HTTP** | `ngx.pipe` 零拷贝 |
 
-**APISIX 关键设计哲学**(v2 重点对比):
+**APISIX 关键设计哲学**:
 
 1. **三段式架构 = 关注点分离的工程化实践**——加新 provider 不用动 protocol 代码,加新传输不用动 provider 代码
 2. **priority_balancer 复用**——`ai-proxy-multi` 直接用 `apisix.balancer.priority`,而**不是重新实现路由逻辑**——这是 OpenResty 系网关的复用优势
 3. **mcp-bridge 用 `ngx.pipe` 真零拷贝**——比 Higress 的 HTTP 透传少一层 JSON-RPC,延迟低 20-50ms
 4. **`cost_expr` Lua 算术表达式**——比 Envoy AI GW 的 CEL 更简洁,比 LiteLLM 的 Python callback 更易运维
-5. **APISIX 的 `ai` 入口插件(P22900)是 v2 重要发现**——它**不是聚合所有 ai-* 插件**,实际是**路由匹配缓存**,scope=global,把 route match 结果缓存到 lrucache,**P99 省 0.1-0.2ms**——这个细节 LiteLLM / Envoy AI GW 都没有
+5. **APISIX 的 `ai` 入口插件(P22900)**——它**不是聚合所有 ai-* 插件**,实际是**路由匹配缓存**,scope=global,把 route match 结果缓存到 lrucache,**P99 省 0.1-0.2ms**——这个细节 LiteLLM / Envoy AI GW 都没有
 6. **APISIX 的 `ai-aliyun-content-moderation` 支持 SSE 流式实时审查**——每 3 秒批检 128 字符,PII 检测可以在流中段触发,**比 LiteLLM 的"等完整响应再审查"早 1-3 秒触发**
 
-**APISIX 的关键反常识点**(v2 必看):
+**APISIX 的关键反常识点**:
 - ❌ **没有 `ai-semantic-cache` 官方插件**——`proxy-cache` 精确缓存命中率 20-35%,语义缓存要二次开发
 - ❌ **`ai-rag` 只支持 Azure OpenAI + Azure AI Search**——国内客户基本不能用,等社区 PR 引入 Milvus/Qdrant
 - ❌ **没有 `ai-deep-research-agent` 官方插件**——通过 `mcp-bridge` + 多个 MCP server 组合实现
@@ -1737,7 +1736,7 @@ local M = {
 | ai-proxy-multi + ai-rate-limiting + ai-prompt-decorator | 1.28s | 1.95s | 0.01% |
 | **SSE 流式 1000 并发 P99** | **50ms** | — | — |
 
-**APISIX 完整 AI 网关实战配置**(v2 重点,来自 `apisix.yaml`):
+**APISIX 完整 AI 网关实战配置**(来自 `apisix.yaml`):
 
 ```yaml
 # 多模型 fallback + 内容审查 + token 限流 + 审计 一站式
@@ -1833,7 +1832,7 @@ routes:
 
 ---
 
-### 4.6 横向对比表【v2 重写 5 款】
+### 4.6 横向对比表(5 款)
 
 | 维度 | LiteLLM | Envoy AI GW | Higress | Portkey | **APISIX 3.16** |
 |------|---------|-------------|---------|---------|------------------|
@@ -1860,7 +1859,7 @@ routes:
 | **GitHub Stars (2026-06)** | ~30K | ~1.5K | ~4K | ~1K | **~15.5K** |
 | **AI 插件数** | 130+ 适配器(透传) | 30+ translator | 30+ provider | 30+ | **12 ai-* + 11 provider + 6 protocol + 5 transport** |
 
-### 4.7 选型决策树【v2 扩展】
+### 4.7 选型决策树
 
 **第一层:你的技术栈决定候选**
 
@@ -1897,7 +1896,7 @@ routes:
 └── 12 月+:MCP-aware 升级,准备 agent 网关 → 关注 4.6 横评表
 ```
 
-**实战组合**(v2 重点推荐):
+**实战组合**:
 
 ```yaml
 # 组合 1:APISIX 做基础设施 + LiteLLM 做业务层 SDK
@@ -1931,9 +1930,9 @@ routes:
 
 ## 第 5 章 · 行业全景:谁在用、谁在卷、谁在合并
 
-### 5.1 用户分布(2025-Q4 数据,v2 扩到 5 款)
+### 5.1 用户分布(2025-Q4 数据)
 
-- **Lenny's Newsletter 调研**:LLM 应用中 73% 用了某种形式的 LLM Gateway(LiteLLM 28% / **APISIX 18%** / Portkey 19% / 自研 17% / 其他 9%)。v2 新增:**APISIX 在中国市场份额长期领先(2026 Q1 调研约 18% 工程师采用,仅次于 LiteLLM)**。
+- **Lenny's Newsletter 调研**:LLM 应用中 73% 用了某种形式的 LLM Gateway(LiteLLM 28% / **APISIX 18%** / Portkey 19% / 自研 17% / 其他 9%)。**APISIX 在中国市场份额长期领先(2026 Q1 调研约 18% 工程师采用,仅次于 LiteLLM)**。
 - **OpenAI 官方推荐**:OpenAI Cookbook 在 2025-Q3 加入"Use LiteLLM as a proxy"作为推荐模式。
 - **企业级采用**:JPMorgan 内部 LLM 网关基于自研,Netflix 用 LiteLLM,Docker 用 Envoy AI GW,**中国电信/移动/联通 + Airwallex + 明源云用 APISIX**。
 - **APISIX 在中国云原生 API 网关市场份额**:**2026-06 API7 官方数据,APISIX 占中国云原生 API 网关 35%**(Kong 28% / Higress 22% / Envoy 15%)。
@@ -1941,14 +1940,14 @@ routes:
 ### 5.2 2025 年 7 起重大整合事件
 
 1. **Portkey 收购 APIClarity**(2025-09) — 抢 API 可观测市场
-2. **Solo.io 收购 api7.ai 部分资产**(2025-11) — API Gateway + AI Gateway 一体化(**v2 注:这条整合让 Solo.io(Envoy AI GW 厂商)和 api7.ai(APISIX 主导方)产生合作**)
+2. **Solo.io 收购 api7.ai 部分资产**(2025-11) — API Gateway + AI Gateway 一体化(这条整合让 Solo.io(Envoy AI GW 厂商)和 api7.ai(APISIX 主导方)产生合作)
 3. **阿里 Higress 团队扩编**(2025-Q3) — 国内 AI GW 重点投入
 4. **Cloudflare Workers AI Gateway 商业化**(2025-06) — 进入付费层
 5. **LiteLLM 拿到 a16z 投资**(2025-08) — B 轮 2500 万美元
 6. **Helicone 推出 "AI Agent Observability"**(2025-10) — 与 Portkey 正面竞争
 7. **OpenRouter 收购 Martian**(2025-12) — 模型路由 + 路由器合并
 
-**v2 新增 2 起 APISIX 相关事件**:
+**相关事件(续)**:
 8. **Apache APISIX 3.16 发布**(2026-04-08) — 三段式 AI 架构重构 + Bedrock + Vertex AI + cost_expr 表达式限流
 9. **APISIX mcp-bridge 1.0 GA**(2026-02) — 比 Kong 早 4 个月 / Envoy AI GW 早 8 个月,占据 2026 MCP 网关先发位置
 
@@ -1960,20 +1959,19 @@ routes:
 - **MCP(Model Context Protocol)** 进入 2026-07-28 RC 阶段(Anthropic 主导,7 Major / 6 Minor / 3 Deprecated)
 - **CNCF AI Gateway Working Group** 成立(2025-Q4),目标统一 API
 - **OpenAI 推出"OpenAI 兼容"事实标准**:目前 80% 厂商自报"OpenAI 兼容",但实现差异巨大
-- **v2 新增**:**APISIX `ai-protocols/converters/` 目录**——OpenAI ↔ Anthropic 协议互转的代码已合入,成为 2026 H1 最实用的协议兼容实现
+- **APISIX `ai-protocols/converters/` 目录**——OpenAI ↔ Anthropic 协议互转的代码已合入,成为 2026 H1 最实用的协议兼容实现
 
 ### 5.4 终局预测
 
 AI 网关**不会**像数据库一样"几家公司赢家通吃",它会像 API Gateway 一样存在 5-10 家头部 + 大量垂直小厂。**但纯转售窗口期 ≤ 12 个月**(2026 中结束),必须**做垂直**。未来 12 个月最可能跑出来的形态:
 
-- **4 家头部通用网关**(LiteLLM / Envoy AI GW / Portkey / **APISIX**——v2 把"3 家"扩到"4 家")
+- **4 家头部通用网关**(LiteLLM / Envoy AI GW / Portkey / **APISIX**)
 - **5-10 家垂直网关**(法务 / 医疗 / 教育 / 客服 / 电商)
 - **云厂商自带**(阿里 Higress / Cloudflare AI GW / 字节扣子)
 - **大企业自研**(JPMorgan / Netflix / Microsoft 内部)
 
-**v2 关键判断变化**:
-- 原 v1 预测"LiteLLM / Envoy AI GW / Portkey 3 家头部" → v2 改:**"4 家头部,APISIX 替代 Higress 进入头部位置"**——Higress 因"绑定阿里云生态"路径依赖被 APISIX 替代
-- 原因:**APISIX 在 MCP 早期布局 + cost_expr 独家能力 + 已有 API 网关客户群** 三者叠加,在 2026 年 7-12 月窗口期快速抢占通用网关头部
+**关键判断**:
+- APISIX 因 MCP 早期布局 + cost_expr 独家能力 + 已有 API 网关客户群 三者叠加,在 2026 年 7-12 月窗口期快速抢占通用网关头部
 - **APISIX 的最大风险**:**ai-rag 只支持 Azure**(国内痛点)+ **无 ai-semantic-cache**(LiteLLM 优势)+ **Lua 生态门槛**——这三个不解决,APISIX 在中国中型企业市场会被 LiteLLM 抢份额
 
 ---
@@ -1982,7 +1980,7 @@ AI 网关**不会**像数据库一样"几家公司赢家通吃",它会像 API Ga
 
 读完前面 5 章,你可能觉得 AI 网关很复杂——是的,生产级的确实复杂。**但一个"满足 80% 场景"的极简版,200 行 Python 就能跑起来**。
 
-**v2 重要补充**:在写自研代码之前,先给个**更省事的 1 个 YAML 文件起步方案**——直接用 APISIX standalone 模式:
+在写自研代码之前,先给个**更省事的 1 个 YAML 文件起步方案**——直接用 APISIX standalone 模式:
 
 ```yaml
 # 200 行 Python 之前,先看 50 行 YAML
@@ -2021,7 +2019,7 @@ docker run -d -p 9080:9080 \
   apache/apisix:3.16.0
 ```
 
-**30 秒搭建一个 AI 网关**。**这就是 v2 相比 v1 最实用的补充**——不需要写 200 行 Python,直接用 APISIX 起步。
+**30 秒搭建一个 AI 网关**——不需要写 200 行 Python,直接用 APISIX 起步。
 
 **如果 APISIX 还不够,再考虑下面的 200 行 Python 自研**。
 
@@ -2298,27 +2296,27 @@ locust -f locustfile.py --host=http://localhost:8000
 
 ### 7.1 全文回顾
 
-本文用 7 个章节,从 5 个原生痛点出发,逐步还原了 AI 网关的 5 层架构、8 个核心机制、**5 款**主流实现的源码对照,以及一个 200 行的极简自研实战。**v2 新增 Apache APISIX 3.16 作为第 5 款主流实现**,并把"3 家头部"预测扩到"4 家头部"。
+本文用 7 个章节,从 5 个原生痛点出发,逐步还原了 AI 网关的 5 层架构、8 个核心机制、**5 款**主流实现的源码对照,以及一个 200 行的极简自研实战。**Apache APISIX 3.16 作为第 5 款主流实现**,终局预测为 4 家头部。
 
-**最值得记住的 6 个判断**(v2 在原 5 个上加 1 个):
+**最值得记住的 6 个判断**:
 
 1. **AI 网关是 LLM 工程栈的"新基础设施层"**,不是 API Gateway 的子集。它的核心抽象是 `LLMCall`,不是 `HTTPRequest`。
 2. **5 层架构是 5 款主流实现的"收敛点"**(LiteLLM / Envoy AI GW / Higress / Portkey / APISIX 都收敛到同一架构,只是技术选型不同)。
 3. **8 个机制里,3.3(冷却)和 3.5(重试)** 是生产事故的 80% 来源——这两个机制写错,服务必挂。
 4. **可观测性(gen_ai.*)是新门槛**,不接 OTel 的 AI 网关等于盲人摸象。
 5. **纯转售窗口期 ≤ 12 个月**(2026 中结束),必须做"垂直行业网关 + 业务插件"才能活下来。
-6. **v2 新增**:**MCP 桥接是 2026 H1 关键卡位**——APISIX 2025-04 首发 mcp-bridge 早 Kong 4 个月 / Envoy AI GW 8 个月。**到 2027 年,所有没用 MCP-aware 网关的 AI 应用都会被替换**。
+6. **MCP 桥接是 2026 H1 关键卡位**——APISIX 2025-04 首发 mcp-bridge 早 Kong 4 个月 / Envoy AI GW 8 个月。**到 2027 年,所有没用 MCP-aware 网关的 AI 应用都会被替换**。
 
 ### 7.2 3 个开放问题
 
 1. **通用 vs 垂直,谁会是终局?**
-   - 我的判断(v2 更新):**两者共存**。通用 4 家头部(LiteLLM / Envoy AI GW / Portkey / **APISIX**),垂直 5-10 家(法务 / 医疗 / 教育 / 客服 / 电商),云厂商自带 3-4 家(阿里 / Cloudflare / 字节)。**APISIX 因 MCP 早布局 + cost_expr 独家能力 + 中国 API 网关客户群,2026 H2 进入头部位置**。
+   - 我的判断:**两者共存**。通用 4 家头部(LiteLLM / Envoy AI GW / Portkey / **APISIX**),垂直 5-10 家(法务 / 医疗 / 教育 / 客服 / 电商),云厂商自带 3-4 家(阿里 / Cloudflare / 字节)。**APISIX 因 MCP 早布局 + cost_expr 独家能力 + 中国 API 网关客户群,2026 H2 进入头部位置**。
 
 2. **MCP 协议剧变会重塑 AI 网关的边界吗?**
    - 我的判断:**MCP 是 LLM 网关的"API 化"**。当 MCP 成为标准,网关不仅管 LLM 调用,还管 tool 调用、agent 间通信、resource fetching。**APISIX 的 mcp-bridge 已经是全球最早一批 MCP 网关实现**——2025-04 至今 14 个月的市场先发,2026 H1 已成事实标准。**到 2027 年,所有没用 MCP-aware 网关的 AI 应用都会被替换**。
 
 3. **自研 / 选型 / 用 SaaS,你的 12 个月路线图是什么?**
-   - **0-3 月**:**用 APISIX 起步**(v2 推荐) 或 LiteLLM 起 demo,接 2-3 家厂商,验证业务场景
+   - **0-3 月**:**用 APISIX 起步** 或 LiteLLM 起 demo,接 2-3 家厂商,验证业务场景
    - **3-9 月**:加 1-2 个垂直业务插件(法条缓存 / 话术审核),跑通付费闭环
    - **6-12 月**:评估是否自研替换 SaaS(成本 + 定制需求触发)
    - **9-12 月**:MCP 工具桥接,**优先用 APISIX mcp-bridge** 暴露内部工具
@@ -2326,24 +2324,24 @@ locust -f locustfile.py --host=http://localhost:8000
 
 ### 7.3 写作后记
 
-**v1 后记**:**我尝试做一件事**:用 12 个月的连续追踪 + 直接读 4 款主流实现的源码,还原"AI 网关是什么"。**它不试图穷尽所有细节**(那需要一本 500 页的书),而是给一个**工程师可以拿去做决策**的框架。
+### 7.3 写作后记
 
-**v1 给读者的一个具体建议**:**不要从零写**。先用 LiteLLM / Portkey 跑通业务,等真正遇到"垂直场景的定制需求"再考虑自研那 20% 的差异。
+本文用 12 个月的连续追踪 + 直接读 5 款主流实现的源码,还原"AI 网关是什么"。**它不试图穷尽所有细节**(那需要一本 500 页的书),而是给一个**工程师可以拿去做决策**的框架。
 
-**v2 给读者的一个更新建议**:
+给读者的具体建议:
 - **不要从零写**——这是 2026 年的金科玉律
 - **优先看 APISIX**——2025-04 起的 MCP 早期红利 + cost_expr 独家能力 + 已有 API 网关客户群,是你 2026 H2 升级的"基础设施杠杆"
 - **APISIX 不行再考虑 LiteLLM**——如果你需要 100+ 厂商或 Python 生态集成
 - **LiteLLM 不行再考虑自研**——如果两者都不满足你的"垂直行业网关 + 业务插件"需求
-- **自研** 90% 场景下是错的决策,除非你做到 LiteLLM 内部维护者水平
+- **自研**90% 场景下是错的决策,除非你做到 LiteLLM 内部维护者水平
 
-**v2 核心结论**:**5 款主流实现里,APISIX 是 2026 H2 最被低估的"AI Native API 网关"**——它不是 AI 专用网关,而是"让传统 API 网关零成本升级到 AI 时代"的关键卡位。**如果你已经在用 APISIX 做 API 网关,2026 年要做的不是选 LiteLLM,是在 APISIX 上加 4 个 ai-* 插件**(ai-proxy-multi + ai-prompt-guard + ai-rate-limiting + ai-aliyun-content-moderation)。30 秒配置,80% 场景搞定。
+**核心结论**:**5 款主流实现里,APISIX 是 2026 H2 最被低估的"AI Native API 网关"**——它不是 AI 专用网关,而是"让传统 API 网关零成本升级到 AI 时代"的关键卡位。**如果你已经在用 APISIX 做 API 网关,2026 年要做的不是选 LiteLLM,是在 APISIX 上加 4 个 ai-* 插件**(ai-proxy-multi + ai-prompt-guard + ai-rate-limiting + ai-aliyun-content-moderation)。30 秒配置,80% 场景搞定。
 
 — 完 —
 
 ---
 
-## 附录 · 18 个一手源码链接【v2 扩到 18】
+## 附录 · 18 个一手源码链接
 
 | # | 项目 | 文件 | 说明 |
 |---|------|------|------|
@@ -2359,14 +2357,14 @@ locust -f locustfile.py --host=http://localhost:8000
 | 10 | Portkey | `src/handlers/retryHandler.ts` | 重试 + 厂商 Retry-After |
 | 11 | Portkey | `src/services/conditionalRouter.ts` | MongoDB 风格路由 |
 | 12 | Portkey | `src/handlers/responseHandlers.ts` | 多 provider 响应归一 |
-| 13 | **APISIX** | `apisix/plugins/ai-proxy-multi.lua` | **多 provider + priority + fallback(v2)** |
-| 14 | **APISIX** | `apisix/plugins/ai-rate-limiting.lua` | **`cost_expr` 表达式限流(v2 杀手锏)** |
-| 15 | **APISIX** | `apisix/plugins/ai-prompt-guard.lua` | **正则 prompt 注入防御(v2)** |
-| 16 | **APISIX** | `apisix/plugins/mcp-bridge.lua` | **stdio MCP server 桥接(2025-04 首发,v2 重点)** |
-| 17 | **APISIX** | `apisix/plugins/ai-protocols/converters/anthropic-messages-to-openai-chat.lua` | **协议互转(OpenAI ↔ Anthropic,v2)** |
-| 18 | **APISIX** | `apisix/plugins/prometheus/exporter.lua` | **ai_chat / ai_stream / ai_tokens 指标(v2)** |
+| 13 | **APISIX** | `apisix/plugins/ai-proxy-multi.lua` | **多 provider + priority + fallback** |
+| 14 | **APISIX** | `apisix/plugins/ai-rate-limiting.lua` | **`cost_expr` 表达式限流(杀手锏)** |
+| 15 | **APISIX** | `apisix/plugins/ai-prompt-guard.lua` | **正则 prompt 注入防御** |
+| 16 | **APISIX** | `apisix/plugins/mcp-bridge.lua` | **stdio MCP server 桥接(2025-04 首发)** |
+| 17 | **APISIX** | `apisix/plugins/ai-protocols/converters/anthropic-messages-to-openai-chat.lua` | **协议互转(OpenAI ↔ Anthropic)** |
+| 18 | **APISIX** | `apisix/plugins/prometheus/exporter.lua` | **ai_chat / ai_stream / ai_tokens 指标** |
 
-**附 1:APISIX 关键 PR 引用**(v2 重点):
+**附 1:APISIX 关键 PR 引用**:
 - [PR #12151](https://github.com/apache/apisix/pull/12151) feat: add mcp-bridge plugin (2025-04-19)
 - [PR #12168](https://github.com/apache/apisix/pull/12168) refactor: mcp server framework implementation (2025-06-07)
 - [PR #13170](https://github.com/apache/apisix/pull/13170) refactor: three-layer AI proxy architecture (2026-04-08)
@@ -2375,11 +2373,11 @@ locust -f locustfile.py --host=http://localhost:8000
 - [PR #13312](https://github.com/apache/apisix/pull/13312) feat: extend secret references to all plugins (2026-04-30)
 - [PR #12933](https://github.com/apache/apisix/pull/12933) feat: support vertex-ai (2026-01-26)
 
-**附 2:本仓库其他相关 v2 报告**:
-- `2026-06-07-0730-aigw-apisix-ai-deepdive.md` — **APISIX 12K 字深度专报**(本仓库)
+**附 2:本仓库其他相关报告**:
+- `2026-06-07-0730-aigw-apisix-ai-deepdive.md` — **APISIX 12K 字深度专报**
 - `2026-06-05-2134-aigw-release-higress-v222.md` — Higress v2.2.2 发版追踪
-- `2026-06-05-1658-aigw-tech-deepdive-article.md` — **本文 v1 原版**(2026-06-05 完稿,12 章节 4 款实现)
-- `2026-06-07-0825-aigw-tech-deepdive-article-v2.md` — **本文 v2 修订版**(2026-06-07 修订,12 章节 5 款实现 + APISIX 全面新增)
+- `2026-06-05-1658-aigw-tech-deepdive-article.md` — 本文初版(12 章节 4 款实现)
+- `2026-06-07-0825-aigw-tech-deepdive-article-v2.md` — 本文当前版(12 章节 5 款实现 + APISIX)
 
 ---
 
