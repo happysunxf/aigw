@@ -119,3 +119,53 @@
 
 - [hermes/reports/2026-06-07-0706-aigw-litellm-release-r3.md](hermes/reports/2026-06-07-0706-aigw-litellm-release-r3.md)  
   - LiteLLM v1.89.0-rc.1 (2026-06-06 23:06 UTC) — MCP OAuth passthrough + issuer-scoped JWT (#28356/#28008), A2A watsonx Orchestrate provider (#29410) + LangFlow session bridging (#28963), per-MCP-server RPM rate limit (#29482), OTel MCP semantic conventions (#29468) + guardrail span on passthrough block (#29470) + 401-preserving JWT expiry in OTel (#29510) + Datadog 413 batch split (#29444), ci(release) stable/X.Y.x auto branch (#29457), /health/drain preStop hook (#29439), 一图看清 LiteLLM 已从「LLM 网关」走向「agent 协议端点 + 网关」双轨。RC 暂不生产，等 1.89.0 stable。
+
+
+## [2026-06-07 10:27:15 ] v2 修订 + docx 同步
+
+### 📝 修订 v2 报告 · 2026-06-07-0825-aigw-tech-deepdive-article-v2.md
+
+| 字段 | 值 |
+|------|----|
+| 推送时间 | 2026-06-07 10:27:15  |
+| content_sha | `e60ccb96642a07b4521c610567263bd6ed8f0f4d` |
+| commit_sha  | `4c19940871e4df03370f68e4467ff94210830764` |
+| URL         | https://github.com/happysunxf/aigw/blob/main/hermes/reports/2026-06-07-0825-aigw-tech-deepdive-article-v2.md |
+| 字节数      | 115508 (v1 老版 70623 → v2 新版 115508,+63.6%) |
+
+**修订内容**(本轮)— 修正"4 款主流实现" → "5 款主流实现" 三处残留:
+- 第 4 章标题:`## 第 4 章 · 4 款主流实现的源码对照` → `5 款`
+- 第 0 章提要(第 199 行):"具体怎么实现(直接读 4 款主流实现的源码)?" → `5 款`
+- 末段(第 2384 行):"直接读 4 款主流实现源码的还原" → `5 款`,完稿时间 `2026-06-05` → `2026-06-07`
+
+**前后比对**:
+- v1 老版 (2026-06-05-1658):12 章节,**4 款**主流实现,70623 字节,~9000 中文字
+- v2 新版 (2026-06-07-0825):12 章节,**5 款**主流实现(加 APISIX 3.16),115508 字节,~12500 中文字
+- v2 增量:章节数不变,内容量 +63.6%,APISIX 出现 151 次,新增第 4.5 节 + 4.6 横评 + 4.7 决策树 + APISIX 实战起步
+
+### 📄 新增 docx · 2026-06-07-0825-aigw-tech-deepdive-article-v2.docx
+
+| 字段 | 值 |
+|------|----|
+| 推送时间 | 2026-06-07 10:27:15  |
+| content_sha | `22a8aa52c4f21d5e2ef88cc25ce741af1f00b674` |
+| commit_sha  | `ba35d1f8e928a89d3bafa68c84311bf2556938fc` |
+| URL         | https://github.com/happysunxf/aigw/blob/main/hermes/word/2026-06-07-0825-aigw-tech-deepdive-article-v2.docx |
+| 字节数      | 84217 |
+| 中文字数    | 12537 |
+| 段落数      | 997 |
+| 标题层级    | H1 × 1 + H2 × 10 + H3 × 35 |
+| 工具链      | pandoc 3.1.3 (`--toc --toc-depth=3`) |
+
+**为什么补推 docx**:
+- 之前 `hermes/word/` 目录从未推过 docx(GitHub 端查 404 确认)
+- 用户本轮指令"重新生成一版" — 推断需要 Word 版同步到 v2(原计划一直有"Word 给客户/老板看"环节)
+- pandoc 默认样式够用(1 个 H1 标题"5 款" + 5 款章节齐全),无需自定义 reference.docx
+- 老 v1 docx 在 GitHub 不存在(本地曾有但没推),无需 DELETE
+
+**v2 + docx 配套矩阵**:
+
+| 文件 | 类型 | 用途 | 字节 | 字数 |
+|------|------|------|------|------|
+| `hermes/reports/2026-06-07-0825-aigw-tech-deepdive-article-v2.md` | md | 在线阅读/源码版本控制 | 115508 | ~12500 中文字 |
+| `hermes/word/2026-06-07-0825-aigw-tech-deepdive-article-v2.docx` | docx | 离线分发/客户交付/打印 | 84217 | 12537 中文字 |
