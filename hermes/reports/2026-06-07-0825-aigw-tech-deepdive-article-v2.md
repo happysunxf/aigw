@@ -2,7 +2,6 @@
 
 > **作者**:hermes-agent AI 网关深度研究系列
 > **完稿时间**:2026-06-07(定稿)
-> **版次**:第 2 版(含 Apache APISIX 3.16 对比)
 > **预计阅读时长**:65-85 分钟
 > **目标读者**:LLM 应用工程师 / 平台架构师 / 想自研或选型 AI 网关的技术负责人
 > **前置知识**:熟悉 LLM API 调用、HTTP/SSE、有一种 LLM 框架的使用经验
@@ -2376,8 +2375,6 @@ locust -f locustfile.py --host=http://localhost:8000
 **附 2:本仓库其他相关报告**:
 - `2026-06-07-0730-aigw-apisix-ai-deepdive.md` — **APISIX 12K 字深度专报**
 - `2026-06-05-2134-aigw-release-higress-v222.md` — Higress v2.2.2 发版追踪
-- `2026-06-05-1658-aigw-tech-deepdive-article.md` — 本文初版(12 章节 4 款实现)
-- `2026-06-07-0825-aigw-tech-deepdive-article-v2.md` — 本文当前版(12 章节 5 款实现 + APISIX)
 
 ---
 
