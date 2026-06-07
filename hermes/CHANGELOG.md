@@ -169,3 +169,42 @@
 |------|------|------|------|------|
 | `hermes/reports/2026-06-07-0825-aigw-tech-deepdive-article-v2.md` | md | 在线阅读/源码版本控制 | 115508 | ~12500 中文字 |
 | `hermes/word/2026-06-07-0825-aigw-tech-deepdive-article-v2.docx` | docx | 离线分发/客户交付/打印 | 84217 | 12537 中文字 |
+
+
+## [2026-06-07 10:40:14 ] 清理文档版本化表述
+
+### 📝 v2 报告清理 · 2026-06-07-0825-aigw-tech-deepdive-article-v2.md
+
+| 字段 | 值 |
+|------|----|
+| 推送时间 | 2026-06-07 10:40:14  |
+| content_sha | `df0fa832ab8314f7c428293f97c65306c282d897` |
+| commit_sha  | `42e4e4bf6c0df972e8ed5e64cfc35b988e29210c` |
+| URL         | https://github.com/happysunxf/aigw/blob/main/hermes/reports/2026-06-07-0825-aigw-tech-deepdive-article-v2.md |
+| 字节数      | 115259 (上一版 115508 → 115259,-249 字节) |
+
+**清理内容**(本轮)— 移除 3 处"v2 文档自身"版本化表述,保留所有"APISIX 产品自身"版本化表述(3.11/3.12/3.16/PR #13170 等是 APISIX 这款产品的演进史,不是文章版本号):
+
+| # | 位置 | 原表述 | 处理 |
+|---|------|--------|------|
+| 1 | 头注(原第 5 行) | `> **版次**:第 2 版(含 Apache APISIX 3.16 对比)` | **整行删除** |
+| 2 | 附录「附 2:本仓库其他相关报告」(原第 2379 行) | `- 2026-06-05-1658-aigw-tech-deepdive-article.md — 本文初版(12 章节 4 款实现)` | **整行删除** |
+| 3 | 附录「附 2:本仓库其他相关报告」(原第 2380 行) | `- 2026-06-07-0825-aigw-tech-deepdive-article-v2.md — 本文当前版(12 章节 5 款实现 + APISIX)` | **整行删除** |
+
+**保留(刻意不动)的版本化表述** — 都是 APISIX/LiteLLM/Higress 等产品自身的版本号或文件名,不是文档版本:
+- LiteLLM `lowest_tpm_rpm_v2.py`(源码文件名,行 378 + 1401)
+- Higress v2.2.2(产品版本号,行 2377)
+- APISIX 3.11 / 3.12 / 3.16 + PR #13170(产品演进史,行 60、285、1632、1810、1951)
+- 文中"扩展架构/协议扩展/可独立扩展"等中性技术描述(行 337、339、345、1423)
+
+### 📄 v2 docx 同步清理 · 2026-06-07-0825-aigw-tech-deepdive-article-v2.docx
+
+| 字段 | 值 |
+|------|----|
+| 推送时间 | 2026-06-07 10:40:14  |
+| content_sha | `5a745379e82d648170efb9f875aaf975b1b24253` |
+| commit_sha  | `809eb5f8a80f6f737e49589292d7fb30e673dda3` |
+| URL         | https://github.com/happysunxf/aigw/blob/main/hermes/word/2026-06-07-0825-aigw-tech-deepdive-article-v2.docx |
+| 字节数      | 84122 (上一版 84217 → 84122,-95 字节) |
+
+**为什么 docx 字节数下降幅度比 md 小**:pandoc 转 docx 时会把 4.6 节的横向对比表等结构化内容渲染成 Word 表格,占字节更多;删 3 行 metadata 反映在 docx 上约 100 字节(84217 → 84122)。
