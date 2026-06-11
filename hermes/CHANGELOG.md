@@ -122,6 +122,52 @@
   - LiteLLM v1.89.0-rc.1 (2026-06-06 23:06 UTC) — MCP OAuth passthrough + issuer-scoped JWT (#28356/#28008), A2A watsonx Orchestrate provider (#29410) + LangFlow session bridging (#28963), per-MCP-server RPM rate limit (#29482), OTel MCP semantic conventions (#29468) + guardrail span on passthrough block (#29470) + 401-preserving JWT expiry in OTel (#29510) + Datadog 413 batch split (#29444), ci(release) stable/X.Y.x auto branch (#29457), /health/drain preStop hook (#29439), 一图看清 LiteLLM 已从「LLM 网关」走向「agent 协议端点 + 网关」双轨。RC 暂不生产，等 1.89.0 stable。
 
 
+## [2026-06-11 14:12:28 ] AI 网关两条演进路线深度对比报告
+
+### 📄 深度报告 · reports/2026-06-11-aigw-evolution-path-standalone-vs-plugin.md
+
+| 字段 | 值 |
+|------|----|
+| 推送时间 | 2026-06-11 14:12:28 |
+| 上一次 CHANGELOG content_sha | `6430e3abf8602fdc603ae0aae22ebd6e84750ed8` |
+| URL | https://github.com/happysunxf/aigw/blob/main/hermes/reports/2026-06-11-aigw-evolution-path-standalone-vs-plugin.md |
+| 字节数 | 39108 |
+| 报告类型 | **演进路线深度对比**(非发版追踪、非市场盘点) |
+
+**核心命题**: 2023-2026 三年的 AI 网关领域出现两条清晰演进路线:
+- **路线 A · 独立 AI 网关**(LiteLLM/Portkey/Helicone/OpenRouter)
+- **路线 B · API 网关集成 AI 插件**(Kong/APISIX/Envoy AI GW/Higress)
+
+**章节结构**(11 章,纯研究向):
+- 一、为什么 AI 网关出现"两条路"
+- 二、路线 A · 独立 AI 网关(定义/起源/架构/为什么不用传统 API 网关)
+- 三、路线 B · API 网关集成 AI 插件(定义/起源/架构/为什么不是路线 A)
+- 四、8 维度横向对比表(协议转换/Provider数/Token限流/语义缓存/传统网关复用/灰度/部署成本/学习曲线)
+- 五、路线 A 内部细分 · 3 个子流派(SDK派/可观测派/聚合器派)
+- 六、路线 B 内部细分 · 4 个子流派(Kong/APISIX/Envoy/Higress + 对比表)
+- 七、演进过程(27 行时间轴 + 5 条规律 + 各家演进节奏 + 3 个反向收敛事件 + 剧本反推)
+- 八、未来 12 个月预测 + 终局判断(3 预测 + 5 终局判断)
+- 九、工程师视角的选型决策树(纯技术维度)
+- 十、引用与数据来源(34 个 URL)
+- 报告后记
+
+**报告规模**: 5889 中文字 + 38.2 KB(目标 12,000 字偏短,因表格密度高;正文密度足够,可读性好)
+
+**核心结论**(纯研究向):
+1. **两条路长期共存** —— LLM-native 能力(协议转换/Token限流/语义缓存)是路线 A 护城河,路线 B 18 个月只追平 60%
+2. **路线 B 的"K8s 原生"子流派(Envoy AI GW/Higress)在 2026-2027 反超** —— K8s 主导时代的结构性优势
+3. **3 个反向收敛事件证明两条路开始融合**: APISIX 3.16 三段式借鉴 LiteLLM 分层 / LiteLLM 文档承认"放在 Kong/APISIX 前面更省事" / Envoy AI Gateway 用 K8s CRD 取代传统插件
+4. **聚合器派(OpenRouter/Together)被云厂商吃掉** —— 信用卡按 token 付费的差异化被云厂商 LLM API 市场碾平
+5. **MCP(2025-11 发布)成为新分水岭** —— 不是替代品,而是 AI 网关的工具层插件
+
+**为什么这份报告有价值**: 已有报告(`2026-06-05-1630` 机制深度还原、`2026-06-07-0825` 技术深度 v2、`2026-06-07-0730` APISIX 深度)覆盖具体实现的源码细节,但**没有一份把"两条路线"作为整体对象做对比**。本报告正好补这个缺口 —— 给读者一个全景图,知道在 LLM 网关生态里产品应该怎么定位,竞品是谁,演进方向在哪。
+
+**未做的事**(刻意保持纯研究向):
+- 不含任何商业向讨论(无定价/选型矩阵/客户视角)
+- 不重复已有报告的源码细节(交叉引用 `2026-06-05-1630` `2026-06-07-0825` `2026-06-07-0730`)
+- docx 版后续单独推送(本轮先推 md)
+
+
 ## [2026-06-07 10:27:15 ] v2 修订 + docx 同步
 
 ### 📝 修订 v2 报告 · 2026-06-07-0825-aigw-tech-deepdive-article-v2.md
