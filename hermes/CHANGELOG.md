@@ -122,6 +122,37 @@
   - LiteLLM v1.89.0-rc.1 (2026-06-06 23:06 UTC) — MCP OAuth passthrough + issuer-scoped JWT (#28356/#28008), A2A watsonx Orchestrate provider (#29410) + LangFlow session bridging (#28963), per-MCP-server RPM rate limit (#29482), OTel MCP semantic conventions (#29468) + guardrail span on passthrough block (#29470) + 401-preserving JWT expiry in OTel (#29510) + Datadog 413 batch split (#29444), ci(release) stable/X.Y.x auto branch (#29457), /health/drain preStop hook (#29439), 一图看清 LiteLLM 已从「LLM 网关」走向「agent 协议端点 + 网关」双轨。RC 暂不生产，等 1.89.0 stable。
 
 
+## [2026-06-11 15:15:39 ] 为什么需要 AI 网关 · 7 大原生痛点深度拆解
+
+### 📄 痛点报告 · reports/2026-06-11-why-ai-gateway-7-pain-points.md
+
+| 字段 | 值 |
+|------|----|
+| 推送时间 | 2026-06-11 15:15:39 |
+| 报告类型 | **痛点论证**(非发版追踪、非市场盘点、非价值论) |
+| URL | https://github.com/happysunxf/aigw/blob/main/hermes/reports/2026-06-11-why-ai-gateway-7-pain-points.md |
+| docx URL | https://github.com/happysunxf/aigw/blob/main/hermes/word/2026-06-11-why-ai-gateway-7-pain-points.docx |
+| 字节数 md | 21076 |
+| 字节数 docx | 24818 |
+
+**核心命题**: 7 个原生痛点 = AI 网关作为"新基础设施层"独立存在的根本原因。
+
+**7 大痛点(每个 5 维度拆解:场景 / 数字 / 放大路径 / 代价 / 解决能力)**:
+- ① 协议碎片化(Provider Fragmentation) — 4 厂商适配 ≈ 3500-5000 行代码
+- ② 厂商成本不对称 + 单点故障 — 价差 27× / OpenAI 2024-11 挂 4h 损失 $5000 万+
+- ③ 调用成本不可预测(成本黑洞) — Replit 事件 $1043 / 某 SaaS $119k
+- ④ 语义级缓存 — FAQ 类应用成本下降 40-65%
+- ⑤ 可观测维度完全不同 — OTel 4 个 gen_ai.* 语义约定 / 70% 团队无法按 BU 归因
+- ⑥ 合规 / 数据驻留 / PII — 32% 应用有 PII 泄漏 / 提示词注入 +300%
+- ⑦ Agent 流量的不可预测性 — 1 任务 = 12.3 LLM call / Agent 失败率 8-15%
+
+**为什么这份报告有价值**: 配合 2026-06-11 演进路线报告(讲"两条路怎么分"),7 痛点报告讲"为什么需要 AI 网关"(论证市场存在的根本原因)。两份报告互为输入输出 — 痛点 1-3 由独立 AI 网关(路线 A)主导解决,痛点 4-7 由 API 网关集成 AI 插件(路线 B)主导解决。
+
+**复用关系**: 大量引用 `2026-06-05-1630` 第 1 章"5 个原生痛点",扩展为 7 个(增加合规 + Agent 流量两个 2025 H2 才显化痛点)。
+
+**未做的事**(刻意保持纯研究向): 不含任何商业落地、定价、选型决策以外的实际视角。
+
+
 ## [2026-06-11 14:12:28 ] AI 网关两条演进路线深度对比报告
 
 ### 📄 深度报告 · reports/2026-06-11-aigw-evolution-path-standalone-vs-plugin.md
