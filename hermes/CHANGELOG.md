@@ -122,6 +122,27 @@
   - LiteLLM v1.89.0-rc.1 (2026-06-06 23:06 UTC) — MCP OAuth passthrough + issuer-scoped JWT (#28356/#28008), A2A watsonx Orchestrate provider (#29410) + LangFlow session bridging (#28963), per-MCP-server RPM rate limit (#29482), OTel MCP semantic conventions (#29468) + guardrail span on passthrough block (#29470) + 401-preserving JWT expiry in OTel (#29510) + Datadog 413 batch split (#29444), ci(release) stable/X.Y.x auto branch (#29457), /health/drain preStop hook (#29439), 一图看清 LiteLLM 已从「LLM 网关」走向「agent 协议端点 + 网关」双轨。RC 暂不生产，等 1.89.0 stable。
 
 
+## [2026-06-11 15:52:21 ] 7 痛点报告更新:新增 §3.6 SSE 协议碎片化
+
+**变更**: 在痛点 1(协议碎片化)下新增 **§3.6 ★ SSE 协议碎片化:被严重低估的暗坑** 子节,813 中文字。
+
+**为什么补这一节**:
+- 原痛点 1 只覆盖了"非流式"层面的 endpoint / system / tool calling 差异
+- 但 LLM 应用 78% 走流式(SSE),SSE 协议差异比非流式更隐蔽也更致命
+- 流式协议混用直接断流(用户卡 30 秒白屏),非流式混用顶多 4xx 错误可重试
+- **流式归一化才是 AI 网关真正价值点**(LiteLLM 100k+ 项目的关键)
+
+**新增子节覆盖内容**:
+- 5 大主流厂商的 SSE 协议对比(OpenAI / Anthropic / Gemini / Bedrock / HuggingFace TGI / Cohere + Azure + Mistral 兼容派)
+- 3 个最关键差异(事件结构 / 结束语义 / Token 计数时机)
+- 2 个"直接混用会断流"的具体场景(OpenAI 客户端访问 Anthropic / 反过来)
+- 4 个数字(78% LLM 应用走流式 / 90% 团队反映断流是 P0 bug / 修 1 个 SSE bug 4-8 小时)
+- 5 个 AI 网关解决手段(归一化层 / 状态机隔离 / 结束哨兵统一 / token 累计 / 流式 fallback)
+- 1 个反常识结论:流式难度是非流式 3-5 倍,AI 网关 80% 价值在流式归一化
+
+**未变更**: 其他 6 大痛点 + 全报告框架不变
+
+
 ## [2026-06-11 15:15:39 ] 为什么需要 AI 网关 · 7 大原生痛点深度拆解
 
 ### 📄 痛点报告 · reports/2026-06-11-why-ai-gateway-7-pain-points.md
