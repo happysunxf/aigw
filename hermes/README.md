@@ -8,6 +8,7 @@ AI 网关（AI Gateway）领域长期跟踪调研。所有报告以 Markdown 形
 |------|------|------|
 | 2026-06-04 | 2025-2026 AI Gateway 市场总览（8 款主流产品 + 6 大趋势） | [reports/2026-06-04-aigw-market-overview.md](reports/2026-06-04-aigw-market-overview.md) |
 | 2026-06-11 | AI 网关两条演进路线深度对比(独立 AI 网关 vs API 网关集成 AI 插件) | [reports/2026-06-11-aigw-evolution-path-standalone-vs-plugin.md](reports/2026-06-11-aigw-evolution-path-standalone-vs-plugin.md) |
+| 2026-06-11 | 为什么需要 AI 网关 · 7 大原生痛点(纯研究向) | [reports/2026-06-11-why-ai-gateway-7-pain-points.md](reports/2026-06-11-why-ai-gateway-7-pain-points.md) |
 
 ## 研究节奏
 
